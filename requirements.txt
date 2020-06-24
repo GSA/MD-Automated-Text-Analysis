@@ -8,4 +8,4 @@ gensim
 dill
 sklearn
 scipy
-
+xlrd
