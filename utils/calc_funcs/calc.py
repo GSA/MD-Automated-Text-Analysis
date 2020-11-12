@@ -60,6 +60,18 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start, step,id2wo
     return model_list, coherence_values
 
 def print_model(df):
+    '''
+    creates a model from a text field and graphs the coherence values
+
+    parameters:
+    ---------
+    dataframe with a 'TEXT' column
+
+    returns:
+    ---------
+    void
+    
+    '''
     data_2 = df['TEXT'].values.tolist()
 
     # Remove Emails
