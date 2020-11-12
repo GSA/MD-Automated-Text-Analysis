@@ -1,4 +1,29 @@
-def clean(doc):
+from bs4 import BeautifulSoup
+import re
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk import tokenize
+from scipy import stats
+import re
+from nltk.corpus import stopwords 
+from nltk.stem.wordnet import WordNetLemmatizer
+import string
+from bs4 import BeautifulSoup
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.decomposition import NMF, LatentDirichletAllocation
+from time import time
+import warnings
+
+warnings.filterwarnings('ignore')
+nltk.download('vader_lexicon')
+nltk.download('wordnet')
+nltk.download('stopwords')
+
+stop = set(stopwords.words('english'))
+exclude = set(string.punctuation) 
+
+def clean_text(doc):
+
     
     def strip_html_tags(text):
         soup = BeautifulSoup(text, "html.parser")
@@ -74,4 +99,19 @@ def lda_to_list (x):
         temp_list.append(message)
     return temp_list
 
+def remove_stopwords(texts):
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
 
+def make_bigrams(texts,bigram_mod):
+    return [bigram_mod[doc] for doc in texts]
+
+def make_trigrams(texts,trigram_mod):
+    return [trigram_mod[bigram_mod[doc]] for doc in texts]
+
+def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
+    """https://spacy.io/api/annotation"""
+    texts_out = []
+    for sent in texts:
+        doc = nlp(" ".join(sent)) 
+        texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
+    return texts_out
