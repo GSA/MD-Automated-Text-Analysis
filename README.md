@@ -11,6 +11,8 @@ Utility functions to  clean the text data and to calculate the model and coheren
 
 ### Prerequisites
 
+If using VSCode (or running into linting issues) open up your settings.json and paste: 
+'"python.linting.pylintArgs": ["--extension-pkg-whitelist=PyQt5"]'
 
 ### Getting the Data
 
