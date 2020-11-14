@@ -3,9 +3,13 @@ bs4
 matplotlib
 pandas
 numpy
-
+beautifulsoup4
 gensim
 dill
 sklearn
 scipy
 xlrd
+spacy
+gensim
+pyldavis
+pyqt5
