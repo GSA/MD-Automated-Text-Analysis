@@ -9,3 +9,6 @@ dill
 sklearn
 scipy
 xlrd
+
+spacy
+pyLDAvis

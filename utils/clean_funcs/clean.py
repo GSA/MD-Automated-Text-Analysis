@@ -14,12 +14,16 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 from time import time
 import warnings
 
+from gensim.utils import simple_preprocess
+from nltk.corpus import stopwords
+
 warnings.filterwarnings('ignore')
 nltk.download('vader_lexicon')
 nltk.download('wordnet')
 nltk.download('stopwords')
 
-stop = set(stopwords.words('english'))
+# stop = set(stopwords.words('english'))
+stop_words = set(stopwords.words('english'))
 exclude = set(string.punctuation) 
 
 def clean_text(doc):

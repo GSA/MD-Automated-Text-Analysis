@@ -1,0 +1,1 @@
+"C:\SVROOT\Anaconda3\Scripts\pip.exe" install -r "G:\My Drive\automated-text-analysis\requirements.txt"
