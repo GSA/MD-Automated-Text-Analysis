@@ -16,6 +16,7 @@ import warnings
 
 from gensim.utils import simple_preprocess
 from nltk.corpus import stopwords
+import spacy
 
 warnings.filterwarnings('ignore')
 nltk.download('vader_lexicon')
@@ -25,6 +26,7 @@ nltk.download('stopwords')
 # stop = set(stopwords.words('english'))
 stop_words = set(stopwords.words('english'))
 exclude = set(string.punctuation) 
+nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
 
 def clean_text(doc):
 
