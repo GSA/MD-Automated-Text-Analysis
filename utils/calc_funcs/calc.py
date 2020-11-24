@@ -33,7 +33,7 @@ import string
 from bs4 import BeautifulSoup
 from nltk.stem.wordnet import WordNetLemmatizer
 
-def compute_coherence_values(dictionary, corpus, texts, limit, start, step,id2word):
+def compute_coherence_values(dictionary, corpus, texts, limit, start, step, id2word):
     """
     Compute c_v coherence for various number of topics
 

@@ -8,14 +8,13 @@ import re
 from nltk.corpus import stopwords 
 from nltk.stem.wordnet import WordNetLemmatizer
 import string
-from bs4 import BeautifulSoup
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from bs4 import BeautifulSoup from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from time import time
 import warnings
 
 from gensim.utils import simple_preprocess
-from nltk.corpus import stopwords
+# from nltk.corpus import stopwords
 import spacy
 
 warnings.filterwarnings('ignore')
@@ -23,7 +22,7 @@ nltk.download('vader_lexicon')
 nltk.download('wordnet')
 nltk.download('stopwords')
 
-stopwords = set(stopwords.words('english'))
+stop = set(stopwords.words('english'))
 punc = set(string.punctuation) 
 nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
 
@@ -59,7 +58,7 @@ def clean_text(doc):
     email_free = strip_emails(url_free)
     normalized_1 = strip_nonsense(email_free)
     
-    stop_free = " ".join([i for i in normalized_1.lower().split() if i not in stopwords])
+    stop_free = " ".join([i for i in normalized_1.lower().split() if i not in stop])
     punc_free = ''.join(ch for ch in stop_free if ch not in punc)
     normalized = " ".join(WordNetLemmatizer().lemmatize(word) for word in punc_free.split())
     
@@ -104,7 +103,7 @@ def lda_to_list (x):
     return temp_list
 
 def remove_stopwords(texts):
-    return [[word for word in simple_preprocess(str(doc)) if word not in stopwords] for doc in texts]
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop] for doc in texts]
 
 def make_bigrams(texts,bigram_mod):
     return [bigram_mod[doc] for doc in texts]
@@ -123,3 +122,6 @@ def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
 def sent_to_words(sentences):
     for sentence in sentences:
         yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
+
+def make_ngrams(texts, no_of_grams):
+    pass
