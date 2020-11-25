@@ -35,6 +35,15 @@ class TopicsFinder:
         full_df.dropna(subset=['TEXT'],inplace=True)
         return full_df
 
+    def make_ngrams(texts, no_of_grams):
+        sentences = texts
+        for n in range(no_of_grams):
+            n_gram = gensim.models.Phrases(sentences, threshold=50) # higher threshold fewer phrases.
+            sentences = n_gram[texts]
+        n_gram_mod = gensim.models.phrases.Phraser(n_gram)
+            
+        return n_gram, n_gram_mod    
+        
     def _preprocess_data(df):
         text_list = df['TEXT'].values.tolist()
 

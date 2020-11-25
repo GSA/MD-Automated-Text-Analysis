@@ -8,11 +8,13 @@ import re
 from nltk.corpus import stopwords 
 from nltk.stem.wordnet import WordNetLemmatizer
 import string
-from bs4 import BeautifulSoup from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from bs4 import BeautifulSoup 
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from time import time
 import warnings
 
+import gensim
 from gensim.utils import simple_preprocess
 # from nltk.corpus import stopwords
 import spacy
@@ -124,4 +126,20 @@ def sent_to_words(sentences):
         yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
 
 def make_ngrams(texts, no_of_grams):
-    pass
+    ngram_dict = {0: (texts, None)}
+    
+    sentences = texts
+    for n in range (1, no_of_grams):
+        n_gram = gensim.models.Phrases(sentences, threshold=50) # higher threshold fewer phrases.
+        n_gram_mod = gensim.models.phrases.Phraser(n_gram)
+        ngram_dict[n] = (n_gram, n_gram_mod)
+        print("n = " + str(n))
+        
+        sent = texts
+        for i in range(1, len(ngram_dict)):
+            sent = ngram_dict[i][0][sent]
+        sentences = sent
+        
+    return ngram_dict    
+
+        
