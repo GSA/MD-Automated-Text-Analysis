@@ -87,7 +87,7 @@ class TopicsFinder:
         
         return data_lemmatized, id2word, corpus
        
-    def train_LDA_model(no_of_topics):
+    def train_LDA_model(self, no_of_topics):
         model = gensim.models.ldamodel.LdaModel(corpus= self.corpus, num_topics= no_of_topics, id2word= self.id2word)
         coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v')
         
