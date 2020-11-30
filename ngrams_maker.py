@@ -20,7 +20,7 @@ class NGramsMaker:
 
         sentences = texts
         for n in range (2, self.no_of_grams + 1):
-            print("n = " + str(n))
+            print(f"Building {n}-gram...")
             ngram = gensim.models.Phrases(sentences, min_count = 5, threshold=50) # higher threshold fewer phrases.
             ngram_mod = gensim.models.phrases.Phraser(ngram)
             self._ngram_dict[n] = {'ngram': ngram, 'model': ngram_mod}
@@ -29,8 +29,8 @@ class NGramsMaker:
                 sentences = texts
                 for i in range(2, n + 1):
                     sentences = self._ngram_dict[i]['ngram'][sentences]
-                    
-        print("Done.")
-        
+            
+            print("Done.")
+                            
     def make_ngrams(self, texts):
         return [self._get_ngram_sentences(doc) for doc in texts]
