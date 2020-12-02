@@ -20,8 +20,6 @@ class TopicsFinder:
 
         self.stop_words = set(stopwords.words('english') + addl_stop_words)
         self.num_ngrams = num_ngrams
-        
-#         df = self._setup_dataframe(data_file_path)
         self.data_lemmatized, self.id2word, self.corpus = self._preprocess_data(data)
             
 
@@ -58,18 +56,18 @@ class TopicsFinder:
         return data_lemmatized, id2word, corpus
     
        
-    def fit_LDA_model(self, no_of_topics: int) -> (LdaModel, CoherenceModel):
+    def fit_LDA_model(self, num_topics: int) -> (LdaModel, CoherenceModel):
         # TODO: search for the optimal hyper-parameters
-        print("Fitting LDA model...")
-        model = LdaModel(corpus= self.corpus, num_topics= no_of_topics, id2word= self.id2word,
+        model = LdaModel(corpus= self.corpus, num_topics= num_topics, id2word= self.id2word,
                 random_state=100, update_every=1, chunksize=100, passes=10, alpha='auto', per_word_topics=True)
         coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v')
-        print("Done.")
         
         return model, coherencemodel
+
     
     def get_topics(self, model: LdaModel, num_words_in_topic: int = 10):
         return model.show_topics(num_words= num_words_in_topic, formatted=True)
+        
     
     def get_coherencescore(self, coherencemodel: CoherenceModel) -> float:
         return coherencemodel.get_coherence()
