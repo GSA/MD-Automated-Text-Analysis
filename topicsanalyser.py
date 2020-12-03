@@ -45,21 +45,111 @@ class TopicsAnalyser:
         self._curr_dir = os.getcwd()
         
         
-    def export_topics_by_agency(self):
-        topic_dict_agency={}
+    def _show_export_message(self, filename: str):
+        
+        return print(f"Text topics were exported to {self._curr_dir}/{filename}")
+    
+    
+    def get_topics_by_agency(self):
+        topic_dict={}
 
         for agency in self._unique_agenics:
             data_filtered = self.data[self.data['AGENCY']==agency]
             topicsfinder = TopicsFinder(data_filtered, self.num_ngrams, self.addl_stop_words)
             num_topics = TopicsAnalyser.scores.get(agency).get('scores').get('total')        
             model, _ = topicsfinder.fit_LDA_model(num_topics)
-            topic_dict_agency[agency] = topicsfinder.get_topics(model)
+            topic_dict[agency] = topicsfinder.get_topics(model)
         
+        agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict.items() ])).T
         export_file = 'Agency_Topics.csv'
-        agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict_agency.items() ])).T
         agency_df.to_csv(export_file)
         
-        print(f"Text topics were exported to {self._curr_dir}/{export_file}")
+        self._show_export_message(export_file)
+        
+
+    def get_topics_by_agency_manager(self):
+        topic_dict={}
+
+        for agency in self._unique_agenics:
+            data_filtered = self.data[(self.data['AGENCY']==agency) & (self.data['SUP_STATUS']==1)]
+            topicsfinder = TopicsFinder(data_filtered, self.num_ngrams, self.addl_stop_words)
+            num_topics = TopicsAnalyser.scores.get(agency).get('scores').get('manager')        
+            model, _ = topicsfinder.fit_LDA_model(num_topics)
+            topic_dict[agency] = topicsfinder.get_topics(model)
+        
+        agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict.items() ])).T
+        export_file = 'Agency_Topics_Senior_Manager.csv'
+        agency_df.to_csv(export_file)
+        
+        self._show_export_message(export_file)
+        
+        
+    def get_topics_by_agency_nonmanager(self):
+        topic_dict={}
+
+        for agency in self._unique_agenics:
+            data_filtered = self.data[(self.data['AGENCY']==agency) & (self.data['SUP_STATUS']==0)]
+            topicsfinder = TopicsFinder(data_filtered, self.num_ngrams, self.addl_stop_words)
+            num_topics = TopicsAnalyser.scores.get(agency).get('scores').get('nonmanager')        
+            model, _ = topicsfinder.fit_LDA_model(num_topics)
+            topic_dict[agency] = topicsfinder.get_topics(model)
+        
+        agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict.items() ])).T
+        export_file = 'Agency_Topics_Non_Manager.csv'
+        agency_df.to_csv(export_file)
+        
+        self._show_export_message(export_file)
+        
+        
+    def get_topics_by_gradelevel(self):
+        unique_grades = self.data['GRADELEVEL'].unique()
+        topic_dict={}
+
+        for grade in unique_grades:
+            data_filtered = self.data[self.data['GRADELEVEL']==grade]
+            topicsfinder = TopicsFinder(data_filtered, self.num_ngrams, self.addl_stop_words)
+            num_topics = 10   # TODO: let the model find the best no. of topics     
+            model, _ = topicsfinder.fit_LDA_model(num_topics)
+            topic_dict[grade] = topicsfinder.get_topics(model)
+        
+        agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict.items() ])).T
+        export_file = 'Grade_Topics.csv'
+        agency_df.to_csv(export_file)
+        
+        self._show_export_message(export_file)
+
+
+    def get_topics_by_agency_component_manager(self):
+        topic_dict={}
+
+        for agency in self._unique_agenics:
+            unique_components = self.data[(self.data['AGENCY']==agency) & 
+                                           (self.data['SUP_STATUS']==1)]['COMPONENT'].unique()
+           
+            temp_dict = {}
+
+            for comps in unique_components:
+#                 temp_dict[comps] = get_topics(self.data[(self.data['AGENCY']==agency) & (self.data['SUP_STATUS']==1)&(self.data['COMPONENT']==comps)])
+    
+#     unique_comps_topics_mang[agency] = temp_dict
+
+                data_filtered = self.data[(self.data['AGENCY']==agency) & 
+                                          (self.data['SUP_STATUS']==1) &
+                                          (self.data['COMPONENT']==comps)]
+                topicsfinder = TopicsFinder(data_filtered, self.num_ngrams, self.addl_stop_words)
+                num_topics = 10 # TODO: figure out what number it should be        
+                model, _ = topicsfinder.fit_LDA_model(num_topics)
+
+                temp_dict[comps] = topicsfinder.get_topics(model)
+                
+            topic_dict[agency] = temp_dict
+            
+        agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict.items() ])).T
+        export_file = 'Agency_Topics_Non_Manager.csv'
+        agency_df.to_csv(export_file)
+        
+        self._show_export_message(export_file)
+
 
     
     
