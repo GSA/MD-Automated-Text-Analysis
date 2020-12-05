@@ -14,6 +14,7 @@ class NGramsMaker:
         self._ngram_dict = {}
         
         self._create_ngrams_model(texts)
+        
     
     def _get_ngram_sentences(self, texts: [str]):
         sentences = texts
@@ -21,6 +22,7 @@ class NGramsMaker:
             sentences = self._ngram_dict[i]['model'][sentences]
             
         return sentences
+    
                        
     def _create_ngrams_model(self, texts: [[str]]):
         self._ngram_dict[1] = {'ngram': texts, 'model': None}
