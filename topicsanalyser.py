@@ -30,21 +30,41 @@ class TopicsAnalyser:
             topic_dict[group] = self._get_topics_by_group(group_data, num_topics, groupby_cols[1:], num_ngrams, addl_stop_words)
             
         return topic_dict
-                    
-
-    def get_topics(self, num_topics: int, groupby_cols = [], num_ngrams: int= 2, addl_stop_words = []):
-
-        topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words)
-        
-        return topics
     
-#         if (isinstance(topics, dict)):
-#             agency_df = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in topic_dict.items() ])).T
-#         else
-#         export_file = 'Agency_Topics_Non_Manager.csv'
-#         agency_df.to_csv(export_file)
+    
+    def _flatten_dictionary(self, topics, row_values: list = []):
+
+        if (isinstance(topics, dict) == False):
+            # return a row of the current group
+            return [row_values + [pd.Series(topics)]]
+
+        results = []
+        # return a list of rows for the current group
+        for k, v in topics.items():
+            # further flatten the sub-dictionaries
+            results = results + self._flatten_dictionary(v, row_values + [k])
+
+        return results
         
-#         self._show_export_message(export_file)
+
+    def get_topics(self, num_topics: int, groupby_cols: list = [], num_ngrams: int= 2, addl_stop_words = []):
+
+        topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words)                   
+        df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
+        col_list = groupby_cols + ['Topics'] + [f"Topic {i}" for i in range(num_topics)]
+        df = df.reindex(columns = col_list)
+        
+        for i in range(len(df)):
+            for t in range(num_topics):
+                try:
+                    df[f"Topic {t}"].iloc[i] = df['Topics'].iloc[i][t][1]
+                except KeyError:
+                    pass
+
+        export_file = 'Topics.csv'
+        df.to_csv(export_file)
+        print(f"Text topics were successfully exported to {os.getcwd()}/{export_file}")
+
 
 
     
