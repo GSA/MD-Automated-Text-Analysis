@@ -19,3 +19,16 @@ class TextFileReader:
         full_df.dropna(subset=['TEXT'],inplace=True)
 
         return full_df
+    
+    def to_dataframe2(self) -> pd.DataFrame:
+
+        df = self.data[['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS', \
+                   'Reason for filling position(s) with Federal Government Employee -OTHER']]
+        df.columns = ['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS','TEXT']
+        full_df = df[df['TEXT'].isnull()==False]
+        full_df = df[df['TEXT'].isna()==False]
+        full_df = df[df['COMPONENT'].isna()==False]
+        full_df = df[df['GRADELEVEL'].isna()==False]
+        full_df.dropna(subset=['TEXT'],inplace=True)
+
+        return full_df
