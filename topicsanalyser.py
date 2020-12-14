@@ -49,6 +49,7 @@ class TopicsAnalyser:
 
     def get_topics(self, num_topics: int, groupby_cols: list = [], num_ngrams: int= 2, addl_stop_words = []):
 
+        # TODO: handle exceptions and return error message
         topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words)                   
         df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
         col_list = groupby_cols + ['Topics'] + [f"Topic {i}" for i in range(num_topics)]
@@ -63,7 +64,8 @@ class TopicsAnalyser:
 
         export_file = 'Topics.csv'
         df.to_csv(export_file)
-        print(f"Text topics were successfully exported to {os.getcwd()}/{export_file}")
+
+        return f"Output file: {os.getcwd()}/{export_file}"
 
 
 
