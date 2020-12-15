@@ -8,7 +8,7 @@ class TopicsAnalyser:
     
     def __init__(self, data_file_path: str): 
         reader = TextFileReader(data_file_path)
-        self.data = reader.to_dataframe()
+        self.data = reader.to_dataframe2()
         
                     
     def _get_topics_by_group(self, data: pd.DataFrame, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list):

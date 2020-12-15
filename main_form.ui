@@ -6,24 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>591</width>
-    <height>407</height>
+    <width>719</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Topics Modeling Tool</string>
+   <string>GSA Topics Modeling Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="formLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>571</width>
-      <height>201</height>
+      <x>20</x>
+      <y>20</y>
+      <width>681</width>
+      <height>181</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="data_file_lbl">
        <property name="text">
@@ -111,8 +114,8 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>300</y>
+      <x>410</x>
+      <y>310</y>
       <width>291</width>
       <height>41</height>
      </rect>
@@ -137,29 +140,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QLabel" name="message_lbl">
-    <property name="geometry">
-     <rect>
-      <x>9</x>
-      <y>230</y>
-      <width>561</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>591</width>
+     <width>719</width>
      <height>22</height>
     </rect>
    </property>
