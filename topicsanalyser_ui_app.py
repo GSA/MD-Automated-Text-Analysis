@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QPushButton, QLineEdit, QSpinBox, QFileDialog)
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLineEdit, QSpinBox, QFileDialog, QErrorMessage
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QRegExpValidator
 import sys
@@ -22,14 +22,16 @@ class TopicsAnalyser_UI(QMainWindow):
         self.groupby_cols_txt = self.findChild(QLineEdit, 'groupby_cols_txt')
         self.addl_stopwords_txt = self.findChild(QLineEdit, 'addl_stopwords_txt')
        
-        # TODO: add field validations
-        rx = QRegExp('^(?!\s*$).+')
-        validator = QRegExpValidator(rx, self.data_file_txt)
-        self.data_file_txt.setValidator(validator)
-        
+        self.setup_validators()
+
         self.show()
         
     def run_topics_analyser(self):
+        self.statusBar().showMessage('')
+        status = self.validate_inputs()
+        if (status != 0):
+            return
+
         groupby_cols_text = self.groupby_cols_txt.text()
         groupby_cols = [col.strip() for col in groupby_cols_text.split(',')]  if (len(groupby_cols_text) > 0) else []
 
@@ -40,6 +42,23 @@ class TopicsAnalyser_UI(QMainWindow):
         message = analyser.get_topics(self.num_topics_spb.value(), groupby_cols, self.num_ngrams_spb.value(), addl_stopwords)
         self.statusBar().showMessage(message)
 
+    def setup_validators(self):
+        # TODO: add field validations
+        # check if the text is an empty string
+        rx = QRegExp('^(?!\\s*$).+')
+        self.filename_validator = QRegExpValidator(rx)
+
+    def validate_inputs(self):
+        self.error_dialog = QErrorMessage()
+        errors = []
+        filename_val_status, _, _ = self.filename_validator.validate(self.data_file_txt.text(), 0)
+        if (filename_val_status != 2):
+            errors.append('Data file is required.')
+
+        if (len(errors) > 0):
+            self.error_dialog.showMessage('\n'.join(errors))
+            return -1
+        return 0
 
     def getfile(self):
         options = QFileDialog.Options()

@@ -52,7 +52,7 @@ class TopicsAnalyser:
         # TODO: handle exceptions and return error message
         topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words)                   
         df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
-        col_list = groupby_cols + ['Topics'] + [f"Topic {i}" for i in range(num_topics)]
+        col_list = ['Topics'] + groupby_cols + [f"Topic {i}" for i in range(num_topics)]
         df = df.reindex(columns = col_list)
         
         for i in range(len(df)):
@@ -63,7 +63,8 @@ class TopicsAnalyser:
                     pass
 
         export_file = 'Topics.csv'
-        df.to_csv(export_file)
+        # exclude the 'Topics' column from export
+        df.iloc[:, 1:].to_csv(export_file)
 
         return f"Output file: {os.getcwd()}/{export_file}"
 

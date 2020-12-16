@@ -58,8 +58,7 @@ class TopicsFinder:
        
     def fit_LDA_model(self, num_topics: int) -> (LdaModel, CoherenceModel):
         # TODO: search for the optimal hyper-parameters
-        model = LdaModel(corpus= self.corpus, num_topics= num_topics, id2word= self.id2word,
-                random_state=100, update_every=1, chunksize=100, passes=10, alpha='auto', per_word_topics=True)
+        model = LdaModel(corpus= self.corpus, num_topics= num_topics, id2word= self.id2word)
         coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v')
         
         return model, coherencemodel
