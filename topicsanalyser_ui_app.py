@@ -1,8 +1,9 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLineEdit, QSpinBox, QFileDialog, QErrorMessage
-from PyQt5.QtCore import QRegExp
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLineEdit, QSpinBox, QFileDialog, QErrorMessage, QProgressBar
+from PyQt5.QtCore import QRegExp, QBasicTimer
 from PyQt5.QtGui import QRegExpValidator
 import sys
+from textfilereader import TextFileReader
 from topicsanalyser import TopicsAnalyser
 
 class TopicsAnalyser_UI(QMainWindow):
@@ -21,13 +22,12 @@ class TopicsAnalyser_UI(QMainWindow):
         self.num_ngrams_spb = self.findChild(QSpinBox, 'num_ngrams_spb')
         self.groupby_cols_txt = self.findChild(QLineEdit, 'groupby_cols_txt')
         self.addl_stopwords_txt = self.findChild(QLineEdit, 'addl_stopwords_txt')
-       
+        
         self.setup_validators()
 
         self.show()
         
-    def run_topics_analyser(self):
-        self.statusBar().showMessage('')
+    def run_topics_analyser(self):        
         status = self.validate_inputs()
         if (status != 0):
             return
@@ -38,7 +38,12 @@ class TopicsAnalyser_UI(QMainWindow):
         addl_stopwords_text = self.addl_stopwords_txt.text()
         addl_stopwords = [sw.strip() for sw in addl_stopwords_text.split(',')] if (len(addl_stopwords_text) > 0) else []
 
-        analyser = TopicsAnalyser(self.data_file_txt.text())
+        # TODO: these column names should come from the input screen
+        text_col = 'Reason for filling position(s) with Federal Government Employee -OTHER'
+        other_cols = ['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS']
+        data = TextFileReader.get_dataframe(self.data_file_txt.text(), text_col, other_cols)
+        
+        analyser = TopicsAnalyser(data)
         message = analyser.get_topics(self.num_topics_spb.value(), groupby_cols, self.num_ngrams_spb.value(), addl_stopwords)
         self.statusBar().showMessage(message)
 

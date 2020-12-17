@@ -27,13 +27,13 @@ class TopicsFinder:
         text_list = df['TEXT'].values.tolist()
 
         # Remove Emails
-        text_list = [re.sub('\S*@\S*\s?', '', str(sent)) for sent in text_list]
+        text_list = [re.sub(r'\S*@\S*\s?', '', str(sent)) for sent in text_list]
 
         # Remove new line characters
-        text_list = [re.sub('\s+', ' ', str(sent)) for sent in text_list]
+        text_list = [re.sub(r'\s+', ' ', str(sent)) for sent in text_list]
 
         # Remove distracting single quotes
-        text_list = [re.sub("\'", "", str(sent)) for sent in text_list]
+        text_list = [re.sub(r"\'", "", str(sent)) for sent in text_list]
 
         data_words = list(sent_to_words(text_list))
 
