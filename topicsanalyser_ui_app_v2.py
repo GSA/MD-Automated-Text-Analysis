@@ -3,24 +3,29 @@ from PyQt5.QtCore import QRegExp
 from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
 from topicsanalyser import TopicsAnalyser
-from main_form import Ui_MainWindow
+from topics_modeling_wizard import Ui_TopicsModelingWizard
 from PyQt5.QtWidgets import (
-    QMainWindow,
+    # QMainWindow,
+    QWizard,
+    QWizardPage,
     QApplication, 
     QFileDialog, 
     QErrorMessage
 )
 
-class TopicsAnalyser_UI(QMainWindow):
-    def __init__(self):
-        super(TopicsAnalyser_UI, self).__init__()
-        self.ui = Ui_MainWindow()
+class TopicsAnalyser_UI(QWizard):
+    def __init__(self, parent=None):
+        super(TopicsAnalyser_UI, self).__init__(parent)
+        self.ui = Ui_TopicsModelingWizard()
         self.ui.setupUi(self)
+        self.setWindowTitle('GSA Topics Modeling Tool')
+        self.resize(719, 410)
         
-        self.ui.run_btn.clicked.connect(self.run_topics_analyser)
-        self.ui.browse_btn.clicked.connect(self.getfile)        
+        self.ui.browse_btn.clicked.connect(self.getfile)
+        self.ui.DataFilePage.validatePage = self.validate_file_inputs
+        self.ui.TopicsModelingPage.validatePage = self.run_topics_analyser
+                
         self.setup_validators()
-        # self.show()
         
     def run_topics_analyser(self):        
         status = self.validate_inputs()
@@ -42,6 +47,8 @@ class TopicsAnalyser_UI(QMainWindow):
         analyser = TopicsAnalyser(data)
         message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
         self.ui.statusbar.showMessage(message)
+        return True
+        
 
     def setup_validators(self):
        # check if the text is an empty string
@@ -67,7 +74,11 @@ class TopicsAnalyser_UI(QMainWindow):
         if (filename):
             self.ui.data_file_txt.setText(filename)        
 
-        
+    def validate_file_inputs(self):
+        # TODO
+        return True
+   
+   
 app = QApplication(sys.argv)
 window = TopicsAnalyser_UI()
 window.show()
