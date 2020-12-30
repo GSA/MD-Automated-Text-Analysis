@@ -20,8 +20,7 @@ class TopicsAnalyser_UI(QMainWindow):
         self.ui.run_btn.clicked.connect(self.run_topics_analyser)
         self.ui.browse_btn.clicked.connect(self.getfile)        
         self.setup_validators()
-        # self.show()
-        
+       
     def run_topics_analyser(self):        
         status = self.validate_inputs()
         if (status != 0):
