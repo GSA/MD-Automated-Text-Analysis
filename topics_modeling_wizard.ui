@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>737</width>
-    <height>479</height>
+    <width>724</width>
+    <height>375</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
       <x>0</x>
       <y>10</y>
       <width>691</width>
-      <height>270</height>
+      <height>221</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
@@ -56,6 +56,34 @@
       <widget class="QLabel" name="other_columns_lbl">
        <property name="text">
         <string>Other Columns to Import:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="data_file_txt">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="browse_btn">
+         <property name="text">
+          <string>Browse...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="data_file_lbl">
+       <property name="text">
+        <string>Data File *:</string>
+       </property>
+       <property name="buddy">
+        <cstring>data_file_txt</cstring>
        </property>
       </widget>
      </item>
@@ -102,44 +130,13 @@
         </layout>
        </item>
        <item>
-        <widget class="QListView" name="other_cols_lsv">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLineEdit" name="data_file_txt">
-         <property name="readOnly">
+        <widget class="QListWidget" name="other_cols_lst">
+         <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="browse_btn">
-         <property name="text">
-          <string>Browse...</string>
-         </property>
-        </widget>
-       </item>
       </layout>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="data_file_lbl">
-       <property name="text">
-        <string>Data File *:</string>
-       </property>
-       <property name="buddy">
-        <cstring>data_file_txt</cstring>
-       </property>
-      </widget>
      </item>
     </layout>
    </widget>
@@ -202,16 +199,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="groupby_cols_txt">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="0">
       <widget class="QLabel" name="addl_stopwords_lbl">
        <property name="text">
@@ -221,6 +208,13 @@
      </item>
      <item row="3" column="1">
       <widget class="QLineEdit" name="addl_stopwords_txt"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QListWidget" name="groupby_cols_lst">
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::InternalMove</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
