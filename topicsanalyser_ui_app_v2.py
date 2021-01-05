@@ -1,4 +1,5 @@
 import sys
+import pandas as pd
 from PyQt5.QtCore import QRegExp, Qt
 from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
@@ -9,7 +10,8 @@ from PyQt5.QtWidgets import (
     QWizardPage,
     QApplication, 
     QFileDialog, 
-    QErrorMessage
+    QErrorMessage,
+    QMessageBox
 )
 
 class TopicsAnalyser_UI(QWizard):
@@ -17,16 +19,24 @@ class TopicsAnalyser_UI(QWizard):
         super(TopicsAnalyser_UI, self).__init__(parent)
         self.ui = Ui_TopicsModelingWizard()
         self.ui.setupUi(self)
+        self.msg = QMessageBox()
+        
         # register the fields to make them required
         self.ui.DataFilePage.registerField('data_file_txt*', self.ui.data_file_txt)
         self.ui.DataFilePage.registerField('text_col_name_txt*', self.ui.text_col_name_txt)
-        self.ui.DataFilePage.validatePage = self.validate_data_file_info
         
+        # override some default page functions
+        self.ui.DataFilePage.validatePage = self.validate_data_file_page        
+        self.ui.TopicsModelingPage.initializePage = self.init_modeling_page
+        
+        # link the signals to the slots
         self.ui.browse_btn.clicked.connect(self.getfile)     
         self.ui.run_btn.clicked.connect(self.run_topics_analyser)
         self.ui.add_col_btn.clicked.connect(self.add_other_col_for_import)
         self.ui.remove_col_btn.clicked.connect(self.remove_other_col_for_import)
-         
+        
+        # initialize the data for analysis 
+        self.data_reader = TextFileReader('')
         
                 
     def run_topics_analyser(self):        
@@ -37,11 +47,11 @@ class TopicsAnalyser_UI(QWizard):
         addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
         groupby_cols = [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
         
-        data = TextFileReader.get_dataframe(self.ui.data_file_txt.text(), self.ui.text_col_name_txt.text(), groupby_cols)
+        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
         
         analyser = TopicsAnalyser(data)
         message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
-        # self.ui.statusbar.showMessage(message)
+        self._show_message([message], buttons_shown=QMessageBox.Ok, icon=QMessageBox.information)
         
         
     def getfile(self):
@@ -52,19 +62,38 @@ class TopicsAnalyser_UI(QWizard):
             self.ui.data_file_txt.setText(filename)
             
             
-    def validate_data_file_info(self):
-        #TODO: validate the text column name and the other additional columns
+    def validate_data_file_page(self):
+        # validate the names of the text column and the additional columns
+        self.data_reader.data_file_path = self.ui.data_file_txt.text()
+        self.data_reader.read_data()
+        cols = [self.ui.text_col_name_txt.text()] + [self.ui.other_cols_lst.item(i).text() for i in range(self.ui.other_cols_lst.count())]
+        cols_not_exist = self.data_reader.verify_columns_exist(cols)
+        if (len(cols_not_exist) > 0):
+            self._show_message(['The following column(s) do not exist in the data file:'] + cols_not_exist)
+            return False
         
-        # assuming the validation passes
+        return True
+    
+    
+    def init_modeling_page(self):
+        # copy the other column names for grouping use
+        self._copy_other_col_names()           
+        
+    def _show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Warning):
+        self.msg.setIcon(icon)
+        self.msg.setText(('').join(map(lambda x: x + '\n', msgs)))
+        self.msg.setStandardButtons(buttons_shown)
+        self.msg.exec()
+        
+        
+    def _copy_other_col_names(self):
         self.ui.groupby_cols_lst.clear()
         for i in range(self.ui.other_cols_lst.count()):
             item = self.ui.other_cols_lst.item(i).clone()
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Unchecked)
             self.ui.groupby_cols_lst.addItem(item)
-            
-        return True
-    
+        
     
     def add_other_col_for_import(self):
         if (self.ui.other_col_txt.text() != ''):

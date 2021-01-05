@@ -2,41 +2,32 @@ import pandas as pd
 
 class TextFileReader:
  
-    def __init__(self):
-        pass
+    def __init__(self, data_file_path):
+        self.data_file_path = data_file_path
+        self.data = None
+        
+    def read_data(self):
+        self.data = pd.read_excel(self.data_file_path)
 
-    @staticmethod
-    def get_dataframe(data_file_path, text_column: str, other_columns: list = []):
-        data = pd.read_excel(data_file_path)
+    def get_dataframe(self, text_column: str, other_columns: list = []) -> pd.DataFrame:
+        if (self.data is None):
+            self.read_data()
+
         cols = other_columns + [text_column]
-        df = data[cols]
+        df = self.data[cols]
         # rename the original text column in dataframe to 'TEXT'
         df.columns = other_columns + ['TEXT']
         df.dropna(subset=['TEXT'],inplace=True)
         return df
    
-    # def to_dataframe(self) -> pd.DataFrame:
+    def verify_columns_exist(self, columns: list ) -> list:
+        if (self.data is None):
+            self.read_data()
 
-    #     df = self.data[['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS', \
-    #                'Please briefly describe an example of one burdensome administrative task or process which you believe is "low value"']]
-    #     df.columns = ['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS','TEXT']
-    #     full_df = df[df['TEXT'].isnull()==False]
-    #     full_df = df[df['TEXT'].isna()==False]
-    #     full_df = df[df['COMPONENT'].isna()==False]
-    #     full_df = df[df['GRADELEVEL'].isna()==False]
-    #     full_df.dropna(subset=['TEXT'],inplace=True)
-
-    #     return full_df
-    
-    # def to_dataframe2(self) -> pd.DataFrame:
-
-    #     df = self.data[['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS', \
-    #                'Reason for filling position(s) with Federal Government Employee -OTHER']]
-    #     df.columns = ['AGENCY','COMPONENT','SUB_COMPONENT','GRADELEVEL','SUP_STATUS','TEXT']
-    #     full_df = df[df['TEXT'].isnull()==False]
-    #     full_df = df[df['TEXT'].isna()==False]
-    #     full_df = df[df['COMPONENT'].isna()==False]
-    #     full_df = df[df['GRADELEVEL'].isna()==False]
-    #     full_df.dropna(subset=['TEXT'],inplace=True)
-
-    #     return full_df
+        cols_not_exist = []
+        for col in columns:
+            if col not in self.data.columns:
+                cols_not_exist.append(col)
+                
+        return cols_not_exist
+        
