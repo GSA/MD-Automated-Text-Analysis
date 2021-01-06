@@ -51,7 +51,7 @@ class TopicsAnalyser_UI(QWizard):
         
         analyser = TopicsAnalyser(data)
         message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
-        self._show_message([message], buttons_shown=QMessageBox.Ok, icon=QMessageBox.information)
+        self._show_message([message], icon=QMessageBox.Information)
         
         
     def getfile(self):

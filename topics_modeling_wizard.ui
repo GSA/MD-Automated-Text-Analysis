@@ -151,21 +151,21 @@
       <x>10</x>
       <y>10</y>
       <width>681</width>
-      <height>205</height>
+      <height>212</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout">
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::ExpandingFieldsGrow</enum>
      </property>
-     <item row="0" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="num_topics_lbl">
        <property name="text">
-        <string>Number of Topics</string>
+        <string>No of Topics *:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
+     <item row="1" column="1">
       <widget class="QSpinBox" name="num_topics_spb">
        <property name="minimum">
         <number>1</number>
@@ -175,14 +175,14 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="num_ngrams_lbl">
        <property name="text">
-        <string>Number of N-Grams:</string>
+        <string>No of N-Grams *:</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QSpinBox" name="num_ngrams_spb">
        <property name="minimum">
         <number>1</number>
@@ -192,29 +192,53 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="groupby_cols_lbel">
        <property name="text">
         <string>Group by Columns:</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QListWidget" name="groupby_cols_lst">
        <property name="dragDropMode">
         <enum>QAbstractItemView::InternalMove</enum>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="addl_stopwords_lbl">
        <property name="text">
         <string>Addl. Stop Words:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="QLineEdit" name="addl_stopwords_txt"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="output_file_name_lbl">
+       <property name="text">
+        <string>Output File Name *:</string>
+       </property>
+       <property name="buddy">
+        <cstring>output_file_name_txt</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLineEdit" name="output_file_name_txt"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="extension_lbl">
+         <property name="text">
+          <string>.xlsx</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
@@ -222,7 +246,7 @@
     <property name="geometry">
      <rect>
       <x>550</x>
-      <y>270</y>
+      <y>230</y>
       <width>144</width>
       <height>32</height>
      </rect>
@@ -231,7 +255,7 @@
      <string>Run Analysis</string>
     </property>
     <property name="default">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
