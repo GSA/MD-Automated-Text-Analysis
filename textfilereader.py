@@ -27,7 +27,15 @@ class TextFileReader:
         cols_not_exist = []
         for col in columns:
             if col not in self.data.columns:
-                cols_not_exist.append(col)
+                cols_not_exist.append(col + ', ')
                 
         return cols_not_exist
+    
+    def is_text_column(self, text_col_name: str) -> bool:
+        is_text_col = True
+        # make sure the column exists before checking its type
+        if text_col_name in self.data.columns:
+            is_text_col = self.data[text_col_name].apply(type).eq(str).any()
+            
+        return is_text_col
         

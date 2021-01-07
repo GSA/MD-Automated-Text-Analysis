@@ -51,7 +51,7 @@ class TopicsAnalyser_UI(QWizard):
         
         analyser = TopicsAnalyser(data)
         message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
-        self._show_message([message], icon=QMessageBox.Information)
+        self.show_message([message], icon=QMessageBox.Information)
         
         
     def getfile(self):
@@ -63,25 +63,36 @@ class TopicsAnalyser_UI(QWizard):
             
             
     def validate_data_file_page(self):
+        isvalid = True
+        errors = []
         # validate the names of the text column and the additional columns
         self.data_reader.data_file_path = self.ui.data_file_txt.text()
         self.data_reader.read_data()
-        cols = [self.ui.text_col_name_txt.text()] + [self.ui.other_cols_lst.item(i).text() for i in range(self.ui.other_cols_lst.count())]
+        
+        text_col = self.ui.text_col_name_txt.text()
+        cols = [text_col] + [self.ui.other_cols_lst.item(i).text() for i in range(self.ui.other_cols_lst.count())]
         cols_not_exist = self.data_reader.verify_columns_exist(cols)
         if (len(cols_not_exist) > 0):
-            self._show_message(['The following column(s) do not exist in the data file:'] + cols_not_exist)
-            return False
+            errors.extend(['- The following column(s) do not exist in the data file: '] + cols_not_exist)
+            isvalid = False
         
-        return True
+        if (self.data_reader.is_text_column(text_col) == False):
+            errors.extend([f'\n\n- "{text_col}" is not a text column.'])
+            isvalid = False
+        
+        if (len(errors) > 0):
+            self.show_message(errors)
+            
+        return isvalid
     
     
     def init_modeling_page(self):
         # copy the other column names for grouping use
         self._copy_other_col_names()           
         
-    def _show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Warning):
+    def show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Critical):
         self.msg.setIcon(icon)
-        self.msg.setText(('').join(map(lambda x: x + '\n', msgs)))
+        self.msg.setText(('').join(msgs))
         self.msg.setStandardButtons(buttons_shown)
         self.msg.exec()
         

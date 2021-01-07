@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TopicsModelingWizard(object):
     def setupUi(self, TopicsModelingWizard):
         TopicsModelingWizard.setObjectName("TopicsModelingWizard")
-        TopicsModelingWizard.resize(726, 459)
+        TopicsModelingWizard.resize(746, 461)
         TopicsModelingWizard.setSizeGripEnabled(False)
         TopicsModelingWizard.setWizardStyle(QtWidgets.QWizard.ClassicStyle)
         TopicsModelingWizard.setOptions(QtWidgets.QWizard.NoBackButtonOnStartPage|QtWidgets.QWizard.NoCancelButton|QtWidgets.QWizard.NoDefaultButton)
