@@ -40,16 +40,17 @@ class TopicsAnalyser_UI(QWizard):
         
                 
     def run_topics_analyser(self):        
-
-        def get_wordlist(string_: str):
-            return [word.strip() for word in string_.split(',')] if (len(string_) > 0) else []
-        
+        if (self.ui.output_file_name_txt.text() == ''):
+            self.show_message(['Please enter the output file name.'], icon=QMessageBox.Warning)
+            return
+            
+        get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
         addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
         groupby_cols = [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
         
         data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
         
-        analyser = TopicsAnalyser(data)
+        analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
         message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
         self.show_message([message], icon=QMessageBox.Information)
         
@@ -88,7 +89,8 @@ class TopicsAnalyser_UI(QWizard):
     
     def init_modeling_page(self):
         # copy the other column names for grouping use
-        self._copy_other_col_names()           
+        self.copy_other_col_names()
+                   
         
     def show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Critical):
         self.msg.setIcon(icon)
@@ -97,7 +99,7 @@ class TopicsAnalyser_UI(QWizard):
         self.msg.exec()
         
         
-    def _copy_other_col_names(self):
+    def copy_other_col_names(self):
         self.ui.groupby_cols_lst.clear()
         for i in range(self.ui.other_cols_lst.count()):
             item = self.ui.other_cols_lst.item(i).clone()
@@ -107,12 +109,14 @@ class TopicsAnalyser_UI(QWizard):
         
     
     def add_other_col_for_import(self):
-        if (self.ui.other_col_txt.text() != ''):
-            if (self.ui.other_cols_lst.findItems(self.ui.other_col_txt.text(), Qt.MatchFixedString) == True):
-                # TODO: check duplicates
-                pass
+        other_col = self.ui.other_col_txt.text()
+        if (other_col != ''):
+            cols_existed = self.ui.other_cols_lst.findItems(other_col, Qt.MatchCaseSensitive)
+            if (len(cols_existed) > 0):
+                self.show_message([f'Column "{other_col}" was already added.'], icon=QMessageBox.Warning)
+                return
             
-            self.ui.other_cols_lst.addItem(self.ui.other_col_txt.text())
+            self.ui.other_cols_lst.addItem(other_col)
             self.ui.other_col_txt.setText('')
     
     

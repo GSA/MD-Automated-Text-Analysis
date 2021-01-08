@@ -6,9 +6,9 @@ from topicsfinder import TopicsFinder
 
 class TopicsAnalyser:
     
-    def __init__(self, data: pd.DataFrame): 
+    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics'): 
         self.data = data
-        
+        self.output_filename = output_filename
                       
     def _get_topics_by_group(self, data: pd.DataFrame, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list):
         
@@ -61,7 +61,7 @@ class TopicsAnalyser:
                 except KeyError:
                     pass
 
-        export_file = 'Topics.csv'
+        export_file = f'{self.output_filename}.csv'
         # exclude the 'Topics' column from export
         df.iloc[:, 1:].to_csv(export_file)
 
