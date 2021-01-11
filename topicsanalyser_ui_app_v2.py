@@ -5,6 +5,7 @@ from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
 from topicsanalyser import TopicsAnalyser
 from topics_modeling_wizard import Ui_TopicsModelingWizard
+from mylogging.mylogging import MyLogging
 from PyQt5.QtWidgets import (
     QWizard,
     QWizardPage,
@@ -38,6 +39,9 @@ class TopicsAnalyser_UI(QWizard):
         # initialize the data for analysis 
         self.data_reader = TextFileReader('')
         
+        # initialize the logger
+        self.logger = MyLogging().logger
+        
                 
     def run_topics_analyser(self):        
         if (self.ui.output_file_name_txt.text() == ''):
@@ -50,8 +54,12 @@ class TopicsAnalyser_UI(QWizard):
         
         data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
         
-        analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
-        message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
+        try:
+            analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
+            message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
+        except Exception as ex:
+            self.logger.exception('Exception occurred')
+            
         self.show_message([message], icon=QMessageBox.Information)
         
         
