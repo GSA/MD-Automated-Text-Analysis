@@ -5,7 +5,8 @@ from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
 from topicsanalyser import TopicsAnalyser
 from topics_modeling_wizard import Ui_TopicsModelingWizard
-from mylogging.mylogging import MyLogging
+from mylogging.logging import MyLogging
+from mylogging.exception_formats import system_hook_format
 from PyQt5.QtWidgets import (
     QWizard,
     QWizardPage,
@@ -39,9 +40,11 @@ class TopicsAnalyser_UI(QWizard):
         # initialize the data for analysis 
         self.data_reader = TextFileReader('')
         
-        # initialize the logger
-        self.logger = MyLogging().logger
-        
+        # set up logger
+        self.logger = MyLogging('TopicsAnalyser_UI').logger
+               
+        # set up the uncaught exceptions handler
+        sys.excepthook = self.uncaught_exceptions_hander
                 
     def run_topics_analyser(self):        
         if (self.ui.output_file_name_txt.text() == ''):
@@ -53,12 +56,8 @@ class TopicsAnalyser_UI(QWizard):
         groupby_cols = [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
         
         data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
-        
-        try:
-            analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
-            message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
-        except Exception as ex:
-            self.logger.exception('Exception occurred')
+        analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
+        message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
             
         self.show_message([message], icon=QMessageBox.Information)
         
@@ -131,8 +130,18 @@ class TopicsAnalyser_UI(QWizard):
     def remove_other_col_for_import(self):
         if (self.ui.other_cols_lst.currentRow() != -1):
             self.ui.other_cols_lst.takeItem(self.ui.other_cols_lst.currentRow())
-    
-   
+        
+    def uncaught_exceptions_hander(self, type, value, traceback):
+        log_msg = system_hook_format(type, value, traceback)
+        self.logger.exception(log_msg)
+        
+        msg = "An unexpected error occurred below -\n" \
+                f"Type: {type}\n" \
+                f"Value: {value}\n\n" \
+                "The error has been logged for investigation."
+        self.show_message(msg)
+        
+        
 app = QApplication(sys.argv)
 window = TopicsAnalyser_UI()
 window.show()
