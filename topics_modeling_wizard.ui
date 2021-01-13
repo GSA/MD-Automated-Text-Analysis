@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>461</height>
+    <width>741</width>
+    <height>506</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,30 +32,20 @@
       <x>0</x>
       <y>10</y>
       <width>691</width>
-      <height>221</height>
+      <height>166</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
      <property name="fieldGrowthPolicy">
       <enum>QFormLayout::ExpandingFieldsGrow</enum>
      </property>
-     <item row="1" column="0">
-      <widget class="QLabel" name="text_col_name_lbl">
+     <item row="0" column="0">
+      <widget class="QLabel" name="data_file_lbl">
        <property name="text">
-        <string>Text Column Name *:</string>
+        <string>Data File *:</string>
        </property>
        <property name="buddy">
-        <cstring>text_col_name_txt</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="text_col_name_txt"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="other_columns_lbl">
-       <property name="text">
-        <string>Other Columns to Import:</string>
+        <cstring>data_file_txt</cstring>
        </property>
       </widget>
      </item>
@@ -77,62 +67,74 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="data_file_lbl">
+     <item row="1" column="0">
+      <widget class="QLabel" name="text_col_name_lbl">
        <property name="text">
-        <string>Data File *:</string>
+        <string>Text Column Name *:</string>
        </property>
        <property name="buddy">
-        <cstring>data_file_txt</cstring>
+        <cstring>text_col_name_txt</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="text_col_name_txt"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="other_columns_lbl">
+       <property name="text">
+        <string>Other Columns to Import:</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
+      <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,1">
+       <item row="0" column="2" rowspan="2">
+        <widget class="QListWidget" name="other_cols_lst">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="2">
         <widget class="QLineEdit" name="other_col_txt">
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QCommandLinkButton" name="add_col_btn">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Add</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCommandLinkButton" name="remove_col_btn">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::LeftToRight</enum>
-           </property>
-           <property name="text">
-            <string>Remove</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QListWidget" name="other_cols_lst">
-         <property name="alternatingRowColors">
+       <item row="0" column="1">
+        <widget class="QCommandLinkButton" name="add_col_btn">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Add</string>
+         </property>
+         <property name="autoDefault">
           <bool>true</bool>
+         </property>
+         <property name="default">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCommandLinkButton" name="remove_col_btn">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>Remove</string>
          </property>
         </widget>
        </item>

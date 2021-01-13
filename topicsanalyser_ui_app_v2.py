@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 from PyQt5.QtCore import QRegExp, Qt
+# from PyQt5.QtCore import QStyle
 from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
 from topicsanalyser import TopicsAnalyser
@@ -13,7 +14,8 @@ from PyQt5.QtWidgets import (
     QApplication, 
     QFileDialog, 
     QErrorMessage,
-    QMessageBox
+    QMessageBox,
+    QStyle
 )
 
 class TopicsAnalyser_UI(QWizard):
@@ -21,6 +23,11 @@ class TopicsAnalyser_UI(QWizard):
         super(TopicsAnalyser_UI, self).__init__(parent)
         self.ui = Ui_TopicsModelingWizard()
         self.ui.setupUi(self)
+        
+        # change the icon of the push buttons
+        self.ui.add_col_btn.setIcon(self.style().standardIcon(getattr(QStyle, 'SP_ArrowForward')))
+        self.ui.remove_col_btn.setIcon(self.style().standardIcon(getattr(QStyle, 'SP_ArrowBack')))
+
         self.msg = QMessageBox()
         
         # register the fields to make them required
