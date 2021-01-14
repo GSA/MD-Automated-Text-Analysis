@@ -21,7 +21,6 @@ class TopicsFinder:
         self.stop_words = set(stopwords.words('english') + addl_stop_words)
         self.num_ngrams = num_ngrams
         self.data_lemmatized, self.id2word, self.corpus = self._preprocess_data(data)
-            
 
     def _preprocess_data(self, df: pd.DataFrame):
         text_list = df['TEXT'].values.tolist()

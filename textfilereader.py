@@ -1,13 +1,19 @@
 import pandas as pd
+import os
 
 class TextFileReader:
  
-    def __init__(self, data_file_path):
+    def __init__(self, data_file_path: str = None):
         self.data_file_path = data_file_path
         self.data = None
+        self.filesize = None
         
     def read_data(self):
+        if ((self.data_file_path is None) or (len(self.data_file_path.strip()) == 0)):
+            raise ValueError('data path is missing.')
+        
         self.data = pd.read_excel(self.data_file_path)
+        self.filesize = os.path.getsize(self.data_file_path)
 
     def get_dataframe(self, text_column: str, other_columns: list = []) -> pd.DataFrame:
         if (self.data is None):
@@ -32,6 +38,9 @@ class TextFileReader:
         return cols_not_exist
     
     def is_text_column(self, text_col_name: str) -> bool:
+        if (self.data is None):
+            self.read_data()
+
         is_text_col = True
         # make sure the column exists before checking its type
         if text_col_name in self.data.columns:

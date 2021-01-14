@@ -1,13 +1,15 @@
 import sys
 import pandas as pd
+import logging
+import logging.config
+import yaml
+import ntpath
 from PyQt5.QtCore import QRegExp, Qt
-# from PyQt5.QtCore import QStyle
 from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
 from topicsanalyser import TopicsAnalyser
 from topics_modeling_wizard import Ui_TopicsModelingWizard
-from mylogging.logging import MyLogging
-from mylogging.exception_formats import system_hook_format
+from utils.exception_formats import system_hook_format
 from PyQt5.QtWidgets import (
     QWizard,
     QWizardPage,
@@ -45,22 +47,26 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.remove_col_btn.clicked.connect(self.remove_other_col_for_import)
         
         # initialize the data for analysis 
-        self.data_reader = TextFileReader('')
+        self.data_reader = TextFileReader()
         
         # set up logger
-        self.logger = MyLogging('TopicsAnalyser_UI').logger
+        with open('logging_config.yaml', 'r') as f:
+            config = yaml.safe_load(f.read())
+            logging.config.dictConfig(config)
+        self.logger = logging.getLogger('topicsAnalyserLogger')
                
         # set up the uncaught exceptions handler
         sys.excepthook = self.uncaught_exceptions_hander
                 
-    def run_topics_analyser(self):        
+                
+    def run_topics_analyser(self): 
         if (self.ui.output_file_name_txt.text() == ''):
             self.show_message(['Please enter the output file name.'], icon=QMessageBox.Warning)
             return
             
         get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
         addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
-        groupby_cols = [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
+        groupby_cols = self.get_groupby_cols()
         
         data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
         analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
@@ -68,6 +74,9 @@ class TopicsAnalyser_UI(QWizard):
             
         self.show_message([message], icon=QMessageBox.Information)
         
+        
+    def get_groupby_cols(self) -> list:
+        return [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
         
     def getfile(self):
         options = QFileDialog.Options()
@@ -139,14 +148,22 @@ class TopicsAnalyser_UI(QWizard):
             self.ui.other_cols_lst.takeItem(self.ui.other_cols_lst.currentRow())
         
     def uncaught_exceptions_hander(self, type, value, traceback):
-        log_msg = system_hook_format(type, value, traceback)
+        # log error in file with details information
+        addl_info = f"Data file: {ntpath.basename(self.ui.data_file_txt.text())}\n" \
+            f"File size: {self.data_reader.filesize/(1000*1000):.2f} MB\n" \
+            f"No of topics: {self.ui.num_topics_spb.value()}\n" \
+            f"No of N-grams: {self.ui.num_ngrams_spb.value()}\n" \
+            f"Text column: '{self.ui.text_col_name_txt.text()}'\n" \
+            f"Grouping columns: {','.join(self.get_groupby_cols())}"
+        log_msg = system_hook_format(type, value, traceback, addl_info)
         self.logger.exception(log_msg)
         
-        msg = "An unexpected error occurred below -\n" \
+        # show simplified error message to user
+        disp_msg = "An unexpected error occurred below -\n" \
                 f"Type: {type}\n" \
                 f"Value: {value}\n\n" \
-                "The error has been logged for investigation."
-        self.show_message(msg)
+                "The error has been logged for debugging."
+        self.show_message(disp_msg)
         
         
 app = QApplication(sys.argv)

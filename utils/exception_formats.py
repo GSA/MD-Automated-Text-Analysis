@@ -1,7 +1,7 @@
 import sys
 import traceback   
 
-def system_hook_format(type, value, tb) -> str:
+def system_hook_format(type, value, tb, optional_info: str= '') -> str:
     """
     Intended to be assigned to sys.exception as a hook.
     Gives programmer opportunity to do something useful with info from uncaught exceptions.
@@ -17,6 +17,7 @@ def system_hook_format(type, value, tb) -> str:
     traceback_details = '\n'.join(traceback.extract_tb(tb).format())
 
     error_msg = "Uncaught exception -\n" \
+                f"{optional_info}\n" \
                 f"Type: {type}\n" \
                 f"Value: {value}\n" \
                 f"Traceback: {traceback_details}"
