@@ -2,6 +2,10 @@ import pandas as pd
 import os
 
 class TextFileReader:
+    """
+    A class used to read text files, create a Panda DataFrames and verify if the columns
+    in the dataframe meet the requirements for text mining.
+    """
  
     def __init__(self, data_file_path: str = None):
         self.data_file_path = data_file_path
@@ -9,6 +13,13 @@ class TextFileReader:
         self.filesize = None
         
     def read_data(self):
+        """
+        data file is not read when the class is instantiated for various application
+        scenarios. So this method must be explictly called to read data in.
+        
+        Raises:
+            ValueError: raise when data path is not specified
+        """
         if ((self.data_file_path is None) or (len(self.data_file_path.strip()) == 0)):
             raise ValueError('data path is missing.')
         

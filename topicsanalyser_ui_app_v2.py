@@ -60,7 +60,7 @@ class TopicsAnalyser_UI(QWizard):
                 
                 
     def run_topics_analyser(self): 
-        if (self.ui.output_file_name_txt.text() == ''):
+        if (len(self.ui.output_file_name_txt.text().strip()) == 0):
             self.show_message(['Please enter the output file name.'], icon=QMessageBox.Warning)
             return
             
@@ -70,13 +70,14 @@ class TopicsAnalyser_UI(QWizard):
         
         data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
         analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
-        message = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
-            
-        self.show_message([message], icon=QMessageBox.Information)
+        mod_msg = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
+        messages = ['Topics analysis is done.\n', mod_msg]    
+        self.show_message(messages, icon=QMessageBox.Information)
         
         
     def get_groupby_cols(self) -> list:
         return [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
+    
         
     def getfile(self):
         options = QFileDialog.Options()
@@ -146,6 +147,7 @@ class TopicsAnalyser_UI(QWizard):
     def remove_other_col_for_import(self):
         if (self.ui.other_cols_lst.currentRow() != -1):
             self.ui.other_cols_lst.takeItem(self.ui.other_cols_lst.currentRow())
+            
         
     def uncaught_exceptions_hander(self, type, value, traceback):
         # log error in file with details information
@@ -158,7 +160,7 @@ class TopicsAnalyser_UI(QWizard):
         log_msg = system_hook_format(type, value, traceback, addl_info)
         self.logger.exception(log_msg)
         
-        # show simplified error message to user
+        # show a simplified error message to user
         disp_msg = "An unexpected error occurred below -\n" \
                 f"Type: {type}\n" \
                 f"Value: {value}\n\n" \

@@ -10,6 +10,7 @@ def system_hook_format(type, value, tb, optional_info: str= '') -> str:
     type: Exception type
     value: Exception's value
     tb: Exception's traceback
+    optional_info: additional information we want to log or show
     """
 
     # NOTE: because format() is returning a list of string,
