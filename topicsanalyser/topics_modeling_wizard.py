@@ -140,6 +140,10 @@ class Ui_TopicsModelingWizard(object):
         TopicsModelingWizard.addPage(self.TopicsModelingPage)
         self.data_file_lbl.setBuddy(self.data_file_txt)
         self.text_col_name_lbl.setBuddy(self.text_col_name_txt)
+        self.num_topics_lbl.setBuddy(self.num_topics_spb)
+        self.num_ngrams_lbl.setBuddy(self.num_ngrams_spb)
+        self.groupby_cols_lbel.setBuddy(self.groupby_cols_lst)
+        self.addl_stopwords_lbl.setBuddy(self.addl_stopwords_txt)
         self.output_file_name_lbl.setBuddy(self.output_file_name_txt)
 
         self.retranslateUi(TopicsModelingWizard)

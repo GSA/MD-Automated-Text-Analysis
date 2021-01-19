@@ -25,12 +25,20 @@ class TopicsAnalyser_UI(QWizard):
         super(TopicsAnalyser_UI, self).__init__(parent)
         self.ui = Ui_TopicsModelingWizard()
         self.ui.setupUi(self)
+        self.msg = QMessageBox()
         
         # change the icon of the push buttons
         self.ui.add_col_btn.setIcon(self.style().standardIcon(getattr(QStyle, 'SP_ArrowForward')))
         self.ui.remove_col_btn.setIcon(self.style().standardIcon(getattr(QStyle, 'SP_ArrowBack')))
 
-        self.msg = QMessageBox()
+        # set tooltips on some widgets
+        self.ui.other_col_txt.setToolTip('Enter a column name and then press <b>[Add]</b>.')
+        self.ui.other_cols_lst.setToolTip('To remove a column, select one from the list and then press <b>[Remove]</b>.')
+        self.ui.groupby_cols_lbel.setToolTip('The grouping levels start from the top of list.')
+        self.ui.groupby_cols_lst.setToolTip('You can drag and drop to change the order of a column in the list. And select the ones you want for grouping.')
+        stop_words_tip = 'Enter optional uncommon stop words separated by commas.'
+        self.ui.addl_stopwords_lbl.setToolTip(stop_words_tip)
+        self.ui.addl_stopwords_txt.setToolTip(stop_words_tip)
         
         # register the fields to make them required
         self.ui.DataFilePage.registerField('data_file_txt*', self.ui.data_file_txt)
@@ -89,6 +97,7 @@ class TopicsAnalyser_UI(QWizard):
             
     def validate_data_file_page(self):
         isvalid = True
+        test = 2/0
         errors = []
         # validate the names of the text column and the additional columns
         self.data_reader.data_file_path = self.ui.data_file_txt.text()
@@ -139,7 +148,11 @@ class TopicsAnalyser_UI(QWizard):
             if (len(cols_existed) > 0):
                 self.show_message([f'Column "{other_col}" was already added.'], icon=QMessageBox.Warning)
                 return
-            
+            other_cols_limit = 5
+            if (self.ui.other_cols_lst.count() == other_cols_limit):
+                self.show_message([f'Only up to {other_cols_limit} other columns are allowed.'], icon=QMessageBox.Warning)
+                return
+                
             self.ui.other_cols_lst.addItem(other_col)
             self.ui.other_col_txt.setText('')
     

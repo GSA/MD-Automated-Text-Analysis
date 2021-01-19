@@ -32,7 +32,7 @@
       <x>0</x>
       <y>10</y>
       <width>691</width>
-      <height>166</height>
+      <height>171</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout_2">
@@ -89,13 +89,6 @@
      </item>
      <item row="2" column="1">
       <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,1">
-       <item row="0" column="2" rowspan="2">
-        <widget class="QListWidget" name="other_cols_lst">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0" rowspan="2">
         <widget class="QLineEdit" name="other_col_txt">
          <property name="alignment">
@@ -138,6 +131,13 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="2" rowspan="2">
+        <widget class="QListWidget" name="other_cols_lst">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
@@ -165,6 +165,9 @@
        <property name="text">
         <string>No of Topics *:</string>
        </property>
+       <property name="buddy">
+        <cstring>num_topics_spb</cstring>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
@@ -184,6 +187,9 @@
       <widget class="QLabel" name="num_ngrams_lbl">
        <property name="text">
         <string>No of N-Grams *:</string>
+       </property>
+       <property name="buddy">
+        <cstring>num_ngrams_spb</cstring>
        </property>
       </widget>
      </item>
@@ -205,6 +211,9 @@
        <property name="text">
         <string>Group by Columns:</string>
        </property>
+       <property name="buddy">
+        <cstring>groupby_cols_lst</cstring>
+       </property>
       </widget>
      </item>
      <item row="3" column="1">
@@ -218,6 +227,9 @@
       <widget class="QLabel" name="addl_stopwords_lbl">
        <property name="text">
         <string>Addl. Stop Words:</string>
+       </property>
+       <property name="buddy">
+        <cstring>addl_stopwords_txt</cstring>
        </property>
       </widget>
      </item>
