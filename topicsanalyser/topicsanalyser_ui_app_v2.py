@@ -52,6 +52,7 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.browse_btn.clicked.connect(self.getfile)     
         self.ui.run_btn.clicked.connect(self.run_topics_analyser)
         self.ui.add_col_btn.clicked.connect(self.add_other_col_for_import)
+        self.ui.other_col_txt.returnPressed.connect(self.add_other_col_for_import)
         self.ui.remove_col_btn.clicked.connect(self.remove_other_col_for_import)
         
         # initialize the data for analysis 

@@ -63,6 +63,9 @@
          <property name="text">
           <string>Browse...</string>
          </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
       </layout>
@@ -108,7 +111,7 @@
           <string>Add</string>
          </property>
          <property name="autoDefault">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="default">
           <bool>false</bool>
@@ -128,6 +131,9 @@
          </property>
          <property name="text">
           <string>Remove</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
