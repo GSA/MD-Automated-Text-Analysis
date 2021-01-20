@@ -97,7 +97,6 @@ class TopicsAnalyser_UI(QWizard):
             
     def validate_data_file_page(self):
         isvalid = True
-        test = 2/0
         errors = []
         # validate the names of the text column and the additional columns
         self.data_reader.data_file_path = self.ui.data_file_txt.text()
