@@ -32,7 +32,7 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.remove_col_btn.setIcon(self.style().standardIcon(getattr(QStyle, 'SP_ArrowBack')))
 
         # set tooltips on some widgets
-        self.ui.other_col_txt.setToolTip('Enter a column name and then press <b>[Add]</b>.')
+        self.ui.other_col_txt.setToolTip(r'Enter the name of a <b>categorical</b> column in the dataset and then press <b>[Enter]</b> or <b>[Add]</b>.')
         self.ui.other_cols_lst.setToolTip('To remove a column, select one from the list and then press <b>[Remove]</b>.')
         self.ui.groupby_cols_lbel.setToolTip('The grouping levels start from the top of list.')
         self.ui.groupby_cols_lst.setToolTip('You can drag and drop to change the order of a column in the list. And select the ones you want for grouping.')
