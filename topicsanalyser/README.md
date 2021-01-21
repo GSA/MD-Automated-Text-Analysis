@@ -11,13 +11,25 @@ Utility functions to  clean the text data and to calculate the model and coheren
 
 ### Prerequisites
 
-1. Install the required Python packages with the following command: 
+1. Install Python 3.8 or later
+
+2. Install the required Python packages with the following command: 
    
    pip install -r requirements.txt
 
-2. Use the link below to download the English language model (en_core_web_sm) from spaCy:
+3. Use the link below to download the English language model (en_core_web_sm) from spaCy:
 
    https://spacy.io/usage
+
+### Application folder
+
+topicsanalyser
+
+### Command to run application
+
+Python topicsanalyser_ui_app_v2.py
+
+### 
 
 ### Getting the Data
 
