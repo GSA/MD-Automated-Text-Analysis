@@ -1,1 +1,2 @@
-"C:\SVROOT\Anaconda3\Scripts\pip.exe" install -r "G:\My Drive\automated-text-analysis\requirements.txt"
+python -m pip install -r requirements.txt --user --no-warn-script-location --use-feature=2020-resolver
+python -m spacy download en_core_web_sm --user

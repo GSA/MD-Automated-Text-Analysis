@@ -15,11 +15,9 @@ Utility functions to  clean the text data and to calculate the model and coheren
 
 2. Install the required Python packages with the following command: 
    
-   pip install -r requirements.txt
-
-3. Use the link below to download the English language model (en_core_web_sm) from spaCy:
-
-   https://spacy.io/usage
+   python -m pip install -r requirements.txt --user --no-warn-script-location --use-feature=2020-resolver
+   
+   python -m spacy download en_core_web_sm --user
 
 ### Application folder
 
