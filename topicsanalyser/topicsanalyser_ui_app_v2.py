@@ -4,12 +4,14 @@ import logging
 import logging.config
 import yaml
 import ntpath
-from PyQt5.QtCore import QRegExp, Qt
-from PyQt5.QtGui import QRegExpValidator
 from textfilereader import TextFileReader
-from topicsanalyser import TopicsAnalyser
+from data_loading_thread import DataLoading_Thread
+from topicsanalyser_thread import TopicsAnalyser_Thread
+from progress_dialog import ProgressDialog
 from topics_modeling_wizard import Ui_TopicsModelingWizard
 from utils.exception_formats import system_hook_format
+from PyQt5.QtCore import QRegExp, Qt, QRect
+from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import (
     QWizard,
     QWizardPage,
@@ -45,7 +47,7 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.DataFilePage.registerField('text_col_name_txt*', self.ui.text_col_name_txt)
         
         # override some default page functions
-        self.ui.DataFilePage.validatePage = self.validate_data_file_page        
+        self.ui.DataFilePage.validatePage = self.validate_data_file_page
         self.ui.TopicsModelingPage.initializePage = self.init_modeling_page
         
         # link the signals to the slots
@@ -54,10 +56,7 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.add_col_btn.clicked.connect(self.add_other_col_for_import)
         self.ui.other_col_txt.returnPressed.connect(self.add_other_col_for_import)
         self.ui.remove_col_btn.clicked.connect(self.remove_other_col_for_import)
-        
-        # initialize the data for analysis 
-        self.data_reader = TextFileReader()
-        
+                
         # set up logger
         with open('logging_config.yaml', 'r') as f:
             config = yaml.safe_load(f.read())
@@ -75,13 +74,15 @@ class TopicsAnalyser_UI(QWizard):
             
         get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
         addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
-        groupby_cols = self.get_groupby_cols()
-        
-        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)
-        analyser = TopicsAnalyser(data, self.ui.output_file_name_txt.text())
-        mod_msg = analyser.get_topics(self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
-        messages = ['Topics analysis is done.\n', mod_msg]    
-        self.show_message(messages, icon=QMessageBox.Information)
+        groupby_cols = self.get_groupby_cols()       
+        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)     
+        # create a worker thread for the TopicsAnalyser 
+        thread = TopicsAnalyser_Thread(data, self.ui.output_file_name_txt.text(),self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
+        thread.finished.connect(self.analyser_thread_finished)
+        thread.start()
+        # show a progress dialog while the TopicsAnalyser is running
+        self.analysis_progress = ProgressDialog('Analysis is running, please wait...', self)
+        self.analysis_progress.show()
         
         
     def get_groupby_cols(self) -> list:
@@ -94,24 +95,27 @@ class TopicsAnalyser_UI(QWizard):
         filename, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Excel files (*.xlsx)", options=options) 
         if (filename):
             self.ui.data_file_txt.setText(filename)
+            # load data
+            self.data_reader = TextFileReader(filename)
+            thread = DataLoading_Thread(self.data_reader)
+            thread.finished.connect(self.dataloading_thread_finished)
+            thread.start()
+            self.dataloading_progress = ProgressDialog('Loading data, please wait...', self)
+            self.dataloading_progress.show()
             
             
     def validate_data_file_page(self):
         isvalid = True
         errors = []
-        # validate the names of the text column and the additional columns
-        self.data_reader.data_file_path = self.ui.data_file_txt.text()
-        self.data_reader.read_data()
-        
         text_col = self.ui.text_col_name_txt.text()
         cols = [text_col] + [self.ui.other_cols_lst.item(i).text() for i in range(self.ui.other_cols_lst.count())]
         cols_not_exist = self.data_reader.verify_columns_exist(cols)
         if (len(cols_not_exist) > 0):
-            errors.extend(['- The following column(s) do not exist in the data file: '] + cols_not_exist)
+            errors.extend(['The following column(s) do not exist in the data file: '] + cols_not_exist)
             isvalid = False
         
         if (self.data_reader.is_text_column(text_col) == False):
-            errors.extend([f'\n\n- "{text_col}" is not a text column.'])
+            errors.extend([f'\n\n"{text_col}" is not a text column.'])
             isvalid = False
         
         if (len(errors) > 0):
@@ -181,6 +185,16 @@ class TopicsAnalyser_UI(QWizard):
         self.show_message(disp_msg)
         
         
+    def dataloading_thread_finished(self):
+        self.dataloading_progress.close()
+    
+    
+    def analyser_thread_finished(self, msg: str):
+        self.analysis_progress.close()
+        messages = ['Topics analysis is done.\n', msg]    
+        self.show_message(messages, icon=QMessageBox.Information)
+
+
 app = QApplication(sys.argv)
 window = TopicsAnalyser_UI()
 window.show()

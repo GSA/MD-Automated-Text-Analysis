@@ -21,7 +21,7 @@ class TextFileReader:
             ValueError: raise when data path is not specified
         """
         if ((self.data_file_path is None) or (len(self.data_file_path.strip()) == 0)):
-            raise ValueError('data path is missing.')
+            raise ValueError('No data path is specified.')
         
         self.data = pd.read_excel(self.data_file_path)
         self.filesize = os.path.getsize(self.data_file_path)
