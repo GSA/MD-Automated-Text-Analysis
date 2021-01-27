@@ -56,7 +56,9 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.add_col_btn.clicked.connect(self.add_other_col_for_import)
         self.ui.other_col_txt.returnPressed.connect(self.add_other_col_for_import)
         self.ui.remove_col_btn.clicked.connect(self.remove_other_col_for_import)
-                
+        
+        self.data_reader = TextFileReader()
+        
         # set up logger
         with open('logging_config.yaml', 'r') as f:
             config = yaml.safe_load(f.read())
@@ -96,7 +98,7 @@ class TopicsAnalyser_UI(QWizard):
         if (filename):
             self.ui.data_file_txt.setText(filename)
             # load data
-            self.data_reader = TextFileReader(filename)
+            self.data_reader.data_file_path = filename
             thread = DataLoading_Thread(self.data_reader)
             thread.finished.connect(self.dataloading_thread_finished)
             thread.start()

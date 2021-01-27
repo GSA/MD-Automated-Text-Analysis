@@ -6,16 +6,16 @@ formatters:
 handlers:
   file:
     class: logging.handlers.RotatingFileHandler
-    level: DEBUG
+    level: WARNING
     formatter: standard
     filename: topicsanalyser.log
     maxBytes: 1000000
     backupCount: 3
 loggers:
   topicsAnalyserLogger:
-    level: DEBUG
+    level: WARNING
     handlers: [file]
     propagate: no
 root:
-  level: DEBUG
+  level: WARNING
   handlers: [file]
