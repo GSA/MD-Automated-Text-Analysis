@@ -15,7 +15,7 @@ class TopicsAnalyser:
         if (len(groupby_cols) == 0):
             topicsfinder = TopicsFinder(data, num_ngrams, addl_stop_words)
             try:
-                model, _ = topicsfinder.fit_LDA_model(num_topics)
+                model, _ = topicsfinder.fit_LDA_model(num_topics = num_topics)
             except ValueError:
                 return 'no data'
 

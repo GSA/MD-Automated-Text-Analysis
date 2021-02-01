@@ -55,9 +55,9 @@ class TopicsFinder:
         return data_lemmatized, id2word, corpus
     
        
-    def fit_LDA_model(self, num_topics: int) -> (LdaModel, CoherenceModel):
-        # TODO: search for the optimal hyper-parameters
-        model = LdaModel(corpus= self.corpus, num_topics= num_topics, id2word= self.id2word)
+    def fit_LDA_model(self, **kwargs) -> (LdaModel, CoherenceModel):
+        # TODO: search for the optimal hyper-parameters            
+        model = LdaModel(corpus= self.corpus, id2word= self.id2word, **kwargs)
         coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v')
         
         return model, coherencemodel
