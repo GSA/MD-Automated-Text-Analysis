@@ -7,7 +7,21 @@ This is a tool to automate text  analysis via either command line or GUI.  It us
 
 Utility functions to  clean the text data and to calculate the model and coherence scores.
 
+ENH: Enhancement, new functionality
 
+BUG: Bug fix
+
+DOC: Additions/updates to documentation
+
+TST: Additions/updates to tests
+
+BLD: Updates to the build process/scripts
+
+PERF: Performance improvement
+
+TYP: Type annotations
+
+CLN: Code cleanup
 
 ### Prerequisites
 
