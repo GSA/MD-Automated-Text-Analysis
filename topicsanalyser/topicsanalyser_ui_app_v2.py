@@ -1,8 +1,6 @@
 import sys
 import pandas as pd
-import logging
-import logging.config
-import yaml
+from mylogging import MyLogging
 import ntpath
 from textfilereader import TextFileReader
 from data_loading_thread import DataLoading_Thread
@@ -60,11 +58,10 @@ class TopicsAnalyser_UI(QWizard):
         self.data_reader = TextFileReader()
         
         # set up logger
-        with open('logging_config.yaml', 'r') as f:
-            config = yaml.safe_load(f.read())
-            logging.config.dictConfig(config)
-        self.logger = logging.getLogger('topicsAnalyserLogger')
-               
+        self.logger = MyLogging('topicsAnalyserLogger', 'topicsanalyser.log').logger
+        
+        self.logger.info('This message is not supposed to be logged')
+        self.logger.warning('This is a test on logging')       
         # set up the uncaught exceptions handler
         sys.excepthook = self.uncaught_exceptions_hander
                 
