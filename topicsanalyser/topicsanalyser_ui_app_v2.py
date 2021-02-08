@@ -59,9 +59,6 @@ class TopicsAnalyser_UI(QWizard):
         
         # set up logger
         self.logger = MyLogging('topicsAnalyserLogger', 'topicsanalyser.log').logger
-        
-        self.logger.info('This message is not supposed to be logged')
-        self.logger.warning('This is a test on logging')       
         # set up the uncaught exceptions handler
         sys.excepthook = self.uncaught_exceptions_hander
                 
