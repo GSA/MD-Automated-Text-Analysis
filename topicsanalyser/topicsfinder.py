@@ -56,9 +56,9 @@ class TopicsFinder:
     
        
     def fit_LDA_model(self, **kwargs) -> (LdaModel, CoherenceModel):
-        # TODO: search for the optimal hyper-parameters            
         model = LdaModel(corpus= self.corpus, id2word= self.id2word, **kwargs)
-        coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v')
+        # processes must be set to 1 or multiple copies of the UI will be created
+        coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v', processes=1)
         
         return model, coherencemodel
 

@@ -3,6 +3,7 @@ import os
 
 from textfilereader import TextFileReader
 from topicsfinder import TopicsFinder
+from topicsfinder_tuner import TopicsFinderTuner
 
 class TopicsAnalyser:
     
@@ -13,13 +14,18 @@ class TopicsAnalyser:
     def _get_topics_by_group(self, data: pd.DataFrame, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list):
         
         if (len(groupby_cols) == 0):
-            topicsfinder = TopicsFinder(data, num_ngrams, addl_stop_words)
+            tuner = TopicsFinderTuner(data, num_ngrams, addl_stop_words)
             try:
-                model, _ = topicsfinder.fit_LDA_model(num_topics = num_topics)
+                best_params, score = tuner.tune()
+                # TODO: check if the best_params is successfully passed to model below
+                # use the best hyperparameters from the tuner to train the final model
+                topicsfinder = TopicsFinder(data, num_ngrams, addl_stop_words)
+                model, _ = topicsfinder.fit_LDA_model(num_topics = num_topics, **best_params)
             except ValueError:
                 return 'no data'
 
-            return topicsfinder.get_topics(model)
+            # return topicsfinder.get_topics(model)
+            return []
 
         col_name = groupby_cols[0]
         col_unique_values = data[col_name].unique()
