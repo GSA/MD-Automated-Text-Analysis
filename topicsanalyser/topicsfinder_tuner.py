@@ -3,26 +3,30 @@ from topicsfinder import TopicsFinder
 import optuna
 import numpy as np
 import pandas as pd
+import pickle
+import os
 
 class TopicsFinderTuner:
     
-    def __init__(self, data: pd.DataFrame, num_ngrams: int= 2, addl_stop_words: [str]= []):
+    def __init__(self, data: pd.DataFrame, max_num_topics= 10, num_ngrams: int= 2, addl_stop_words: [str]= []):
         self.data = data
+        self.max_num_topics = max_num_topics
         self.num_ngrams = num_ngrams
         self.addl_stop_words = addl_stop_words
         
         
     def objective(self, trial):
-        # set up the search sapce of the hyperparameters 
-        k = trial.suggest_int('num_topics', 1, 10)
+        # set up the search space of the hyperparameters 
+        k = trial.suggest_int('num_topics', 1, self.max_num_topics)
         a = trial.suggest_categorical('alpha', list(np.arange(0.01, 1, 0.3)) + ['symmetric','asymmetric'])
         b = trial.suggest_categorical('eta', list(np.arange(0.01, 1, 0.3)) + ['symmetric'])
         chunksize = trial.suggest_int('chunksize', 100, 2000, step=100)
         passes = trial.suggest_int('passes', 1, 10, step=2)
         iterations = trial.suggest_int('iterations', 50, 500, step=50)
 
-        self.model = TopicsFinder(self.data, self.num_ngrams, self.addl_stop_words)
-        _, cv = self.model.fit_LDA_model(
+        # train the model using the hyperparamters suggested by Optuna
+        finder = TopicsFinder(self.data, self.num_ngrams, self.addl_stop_words)
+        model, cv = finder.fit_model(
             random_state=100,
             eval_every=None,
             chunksize=chunksize,
@@ -30,37 +34,57 @@ class TopicsFinderTuner:
             iterations=iterations,
             num_topics = k,
             alpha = a,
-            eta = b,
+            eta = b
         )
-        score = cv.get_coherence() 
+        score = cv.get_coherence()
+        # report an objective function value for a given step. The reported values are used by the pruners to determine whether this trial should be pruned. 
         trial.report(score, 0)
-        # Handle pruning based on the intermediate value.
+        # handle pruning based on the intermediate value.
         if trial.should_prune():
             raise optuna.exceptions.TrialPruned()
-        return score
+
+        # save a trial info object to a file.
+        trial_info = {'trial': trial, 'model': model}
+        with open(f'{trial.number}.pickle', 'wb') as fout:
+            pickle.dump(trial_info, fout)
         
-        # x = trial.suggest_float("x", -10, 10)
-        # return (x - 2) ** 2
-    
+        return score
+            
 
     def tune(self):
         optuna.logging.get_logger("optuna").addHandler(logging.handlers.RotatingFileHandler("optuna.log",maxBytes=100000,backupCount=3))
-        # stop the study when there are 3 consecutive prunes
+        # stop the study if the model is being pruned 3 times in a row that indicates the current hyperparameters are closed to the optimal ones
         threshold = 3
         study_stop_cb = StopWhenTrialKeepBeingPrunedCallback(threshold)
-        # # save the current study in database so that it can be used as the starting point for later subsequent trails if load_if_exists is set to True on optuna.create_study()
-        study_name = "topicsfinder_tuning-study"   # TODO: use a unique name for different datasets
-        # storage_name = f"sqlite:///{study_name}.db"
+        study_name = "topicsfinder_tuning-study"   
 
         # create a study object and optimize the objective function.
-        # study = optuna.create_study(direction='maximize', study_name=study_name, storage=storage_name, load_if_exists=True)
         study = optuna.create_study(direction='maximize', study_name=study_name)
         study.optimize(self.objective, n_trials=100, callbacks=[study_stop_cb])
-        # return the best hyperparameters and coherence score
-        return (study.best_params, study.best_value)
+        
+        # Load the best trial info object from file.
+        with open(f'{study.best_trial.number}.pickle', 'rb') as fin:
+            best_trial = pickle.load(fin)
+            
+        # remove the temporary pickle files
+        self._remove_pickles()
 
+        return best_trial
+
+
+    def _remove_pickles(self):
+        dir_name = os.getcwd()
+        files = os.listdir(dir_name)
+
+        for file in files:
+            if file.endswith(".pickle"):
+                os.remove(os.path.join(dir_name, file))
+                
 
 class StopWhenTrialKeepBeingPrunedCallback:
+    '''
+    A utility class used as a callback in the study.optimize() function for tuning early stopping
+    '''
     def __init__(self, threshold: int):
         self.threshold = threshold
         self._consequtive_pruned_count = 0

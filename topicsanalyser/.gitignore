@@ -153,3 +153,4 @@ eda/models/
 
 ### Optuna ###
 *-study.db
+*.pickle

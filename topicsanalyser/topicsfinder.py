@@ -55,22 +55,12 @@ class TopicsFinder:
         return data_lemmatized, id2word, corpus
     
        
-    def fit_LDA_model(self, **kwargs) -> (LdaModel, CoherenceModel):
+    def fit_model(self, **kwargs) -> (LdaModel, CoherenceModel):
         model = LdaModel(corpus= self.corpus, id2word= self.id2word, **kwargs)
-        # processes must be set to 1 or multiple copies of the UI will be created
+        # processes must be set to 1 or multiple copies of the UI application will be created
         coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v', processes=1)
         
-        return model, coherencemodel
-
-    
-    def get_topics(self, model: LdaModel, num_words_in_topic: int = 10):
-        return model.show_topics(num_words= num_words_in_topic, formatted=True)
-        
-    
-    def get_coherencescore(self, coherencemodel: CoherenceModel) -> float:
-        return coherencemodel.get_coherence()
-    
-    
+        return model, coherencemodel    
 
     
     
