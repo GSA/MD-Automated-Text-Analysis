@@ -7,7 +7,7 @@ class MyLogging():
         self.logger = logging.getLogger(loggername)
         # configure the default file handler   
         default_handler = RotatingFileHandler(log_filename, maxBytes=1000000, backupCount=3)
-        formatter = logging.Formatter('*** %(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+        formatter = logging.Formatter('[%(asctime)s] %(name)s - %(levelname)s - %(message)s')
         default_handler.setFormatter(formatter)
         self.logger.addHandler(default_handler)
         # add additional handlers

@@ -11,7 +11,8 @@ class TopicsAnalyser_Thread(QThread):
                  num_topics: int,
                  groupby_cols: list,
                  num_ngrams: int,
-                 addl_stopwords: list):        
+                 addl_stopwords: list,
+                 studyname: str = 'topics_modeling'):        
         QThread.__init__(self)
         self.data = data
         self.output_filename = output_filename
@@ -19,9 +20,10 @@ class TopicsAnalyser_Thread(QThread):
         self.groupby_cols = groupby_cols
         self.num_ngrams = num_ngrams
         self.addl_stopwords = addl_stopwords
+        self.studyname = studyname
         
     def run(self) -> None:
-        analyser = TopicsAnalyser(self.data, self.output_filename)
+        analyser = TopicsAnalyser(self.data, self.output_filename, self.studyname)
         mod_msg = analyser.get_topics(self.num_topics, self.groupby_cols, self.num_ngrams, self.addl_stopwords)
         self.finished.emit(mod_msg)
             

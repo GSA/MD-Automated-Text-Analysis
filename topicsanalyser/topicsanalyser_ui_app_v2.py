@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 from mylogging import MyLogging
-import ntpath
+import ntpath, re
 from textfilereader import TextFileReader
 from data_loading_thread import DataLoading_Thread
 from topicsanalyser_thread import TopicsAnalyser_Thread
@@ -71,9 +71,11 @@ class TopicsAnalyser_UI(QWizard):
         get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
         addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
         groupby_cols = self.get_groupby_cols()       
-        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)     
+        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)   
+        # use the input file name as the study name
+        studyname = re.sub(r'[.]\w+','', ntpath.basename(self.ui.data_file_txt.text()))  
         # create a worker thread for the TopicsAnalyser 
-        thread = TopicsAnalyser_Thread(data, self.ui.output_file_name_txt.text(),self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords)
+        thread = TopicsAnalyser_Thread(data, self.ui.output_file_name_txt.text(),self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords, studyname)
         thread.finished.connect(self.analyser_thread_finished)
         thread.start()
         # show a progress dialog while the TopicsAnalyser is running

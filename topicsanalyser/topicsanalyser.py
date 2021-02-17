@@ -1,20 +1,19 @@
 import pandas as pd
 import os
-
-from textfilereader import TextFileReader
-from topicsfinder import TopicsFinder
 from topicsfinder_tuner import TopicsFinderTuner
 
 class TopicsAnalyser:
     
-    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics'): 
+    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', studyname: str = 'topics_modeling'): 
         self.data = data
         self.output_filename = output_filename
+        self.studyname = studyname
+        
                       
-    def _get_topics_by_group(self, data: pd.DataFrame, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list) -> dict:
+    def _get_topics_by_group(self, data: pd.DataFrame, studyname: str, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list) -> dict:
         # check if there is grouping specified for this dataset
         if (len(groupby_cols) == 0):
-            tuner = TopicsFinderTuner(data, num_topics, num_ngrams, addl_stop_words)
+            tuner = TopicsFinderTuner(data, studyname, num_topics, num_ngrams, addl_stop_words)
             try:
                 best_trial = tuner.tune()
             except ValueError:
@@ -33,8 +32,10 @@ class TopicsAnalyser:
         for group in col_unique_values:
             # get the data of current group
             group_data = data[data[col_name] == group]
+            # create a new Optuna study name for the current group
+            new_studyname = f'{studyname}->{group}'
             # recursively call this function to process the data of next level grouping
-            topic_dict[group] = self._get_topics_by_group(group_data, num_topics, groupby_cols[1:], num_ngrams, addl_stop_words)
+            topic_dict[group] = self._get_topics_by_group(group_data, new_studyname, num_topics, groupby_cols[1:], num_ngrams, addl_stop_words)
             
         return topic_dict
     
@@ -54,8 +55,8 @@ class TopicsAnalyser:
         
 
     def get_topics(self, num_topics: int, groupby_cols: list = [], num_ngrams: int= 2, addl_stop_words = []) -> str:
-        # TODO: handle exceptions and return error message
-        topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words)                   
+        TopicsFinderTuner.configure_logger()
+        topics = self._get_topics_by_group(self.data, self.studyname, num_topics, groupby_cols, num_ngrams, addl_stop_words)                   
         df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
         col_list = ['Topics'] + groupby_cols + [f"Topic {i}" for i in range(num_topics)]
         df = df.reindex(columns = col_list)
@@ -72,7 +73,6 @@ class TopicsAnalyser:
         df.iloc[:, 1:].to_csv(export_file)
 
         return f"Output file: {os.getcwd()}/{export_file}"
-
 
 
     

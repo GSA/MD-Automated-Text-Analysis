@@ -8,11 +8,12 @@ import os
 
 class TopicsFinderTuner:
     
-    def __init__(self, data: pd.DataFrame, max_num_topics= 10, num_ngrams: int= 2, addl_stop_words: [str]= []):
+    def __init__(self, data: pd.DataFrame, studyname: str= 'topics_modeling', max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= []):
         self.data = data
         self.max_num_topics = max_num_topics
         self.num_ngrams = num_ngrams
         self.addl_stop_words = addl_stop_words
+        self.studyname = studyname
         
         
     def objective(self, trial: optuna.Trial) -> float:
@@ -52,14 +53,12 @@ class TopicsFinderTuner:
             
 
     def tune(self):
-        optuna.logging.get_logger("optuna").addHandler(logging.handlers.RotatingFileHandler("optuna.log",maxBytes=100000,backupCount=3))
         # stop the study if the model is being pruned 3 times in a row that indicates the current hyperparameters are closed to the optimal ones
         threshold = 3
         study_stop_cb = StopWhenTrialKeepBeingPrunedCallback(threshold)
-        study_name = "topicsfinder_tuning-study"   
 
         # create a study object and optimize the objective function.
-        study = optuna.create_study(direction='maximize', study_name=study_name)
+        study = optuna.create_study(direction='maximize', study_name= self.studyname)
         study.optimize(self.objective, n_trials=100, callbacks=[study_stop_cb])
         
         # Load the best trial info object from file.
@@ -72,6 +71,18 @@ class TopicsFinderTuner:
         return best_trial
 
 
+    @classmethod
+    def configure_logger(cls) -> None:
+        """
+        Configure file handler for Optuna logging
+        """
+        logger = optuna.logging.get_logger("optuna")
+        formatter = logging.Formatter('[%(asctime)s] %(message)s')
+        handler = logging.handlers.RotatingFileHandler("optuna.log",maxBytes=10000000,backupCount=3)
+        handler.setFormatter(formatter)        
+        logger.addHandler(handler)
+       
+        
     def _remove_pickles(self):
         dir_name = os.getcwd()
         files = os.listdir(dir_name)
