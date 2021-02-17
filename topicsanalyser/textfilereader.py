@@ -12,7 +12,7 @@ class TextFileReader:
         self.data = None
         self.filesize = None
         
-    def read_data(self):
+    def read_data(self) -> None:
         """
         data file is not read when the class is instantiated for various application
         scenarios. So this method must be explictly called to read data in.

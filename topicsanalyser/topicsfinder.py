@@ -22,7 +22,7 @@ class TopicsFinder:
         self.num_ngrams = num_ngrams
         self.data_lemmatized, self.id2word, self.corpus = self._preprocess_data(data)
 
-    def _preprocess_data(self, df: pd.DataFrame):
+    def _preprocess_data(self, df: pd.DataFrame) -> None:
         text_list = df['TEXT'].values.tolist()
 
         # Remove Emails

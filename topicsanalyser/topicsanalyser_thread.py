@@ -20,7 +20,7 @@ class TopicsAnalyser_Thread(QThread):
         self.num_ngrams = num_ngrams
         self.addl_stopwords = addl_stopwords
         
-    def run(self):
+    def run(self) -> None:
         analyser = TopicsAnalyser(self.data, self.output_filename)
         mod_msg = analyser.get_topics(self.num_topics, self.groupby_cols, self.num_ngrams, self.addl_stopwords)
         self.finished.emit(mod_msg)

@@ -8,6 +8,6 @@ class DataLoading_Thread(QThread):
         QThread.__init__(self)
         self.data_reader = data_reader
         
-    def run(self):
+    def run(self) -> None:
         self.data_reader.read_data()
         self.finished.emit()

@@ -15,7 +15,7 @@ class TopicsFinderTuner:
         self.addl_stop_words = addl_stop_words
         
         
-    def objective(self, trial):
+    def objective(self, trial: optuna.Trial) -> float:
         # set up the search space of the hyperparameters 
         k = trial.suggest_int('num_topics', 1, self.max_num_topics)
         a = trial.suggest_categorical('alpha', list(np.arange(0.01, 1, 0.3)) + ['symmetric','asymmetric'])

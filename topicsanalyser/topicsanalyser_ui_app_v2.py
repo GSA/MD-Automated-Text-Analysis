@@ -63,7 +63,7 @@ class TopicsAnalyser_UI(QWizard):
         sys.excepthook = self.uncaught_exceptions_hander
                 
                 
-    def run_topics_analyser(self): 
+    def run_topics_analyser(self) -> None: 
         if (len(self.ui.output_file_name_txt.text().strip()) == 0):
             self.show_message(['Please enter the output file name.'], icon=QMessageBox.Warning)
             return
@@ -85,7 +85,7 @@ class TopicsAnalyser_UI(QWizard):
         return [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
     
         
-    def getfile(self):
+    def getfile(self) -> None:
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         filename, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Excel files (*.xlsx)", options=options) 
@@ -100,7 +100,7 @@ class TopicsAnalyser_UI(QWizard):
             self.dataloading_progress.show()
             
             
-    def validate_data_file_page(self):
+    def validate_data_file_page(self) -> bool:
         isvalid = True
         errors = []
         text_col = self.ui.text_col_name_txt.text()
@@ -120,19 +120,19 @@ class TopicsAnalyser_UI(QWizard):
         return isvalid
     
     
-    def init_modeling_page(self):
+    def init_modeling_page(self) -> None:
         # copy the other column names for grouping use
         self.copy_other_col_names()
                    
         
-    def show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Critical):
+    def show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Critical) -> None:
         self.msg.setIcon(icon)
         self.msg.setText(('').join(msgs))
         self.msg.setStandardButtons(buttons_shown)
         self.msg.exec()
         
         
-    def copy_other_col_names(self):
+    def copy_other_col_names(self) -> None:
         self.ui.groupby_cols_lst.clear()
         for i in range(self.ui.other_cols_lst.count()):
             item = self.ui.other_cols_lst.item(i).clone()
@@ -141,7 +141,7 @@ class TopicsAnalyser_UI(QWizard):
             self.ui.groupby_cols_lst.addItem(item)
         
     
-    def add_other_col_for_import(self):
+    def add_other_col_for_import(self) -> None:
         other_col = self.ui.other_col_txt.text()
         if (other_col != ''):
             cols_existed = self.ui.other_cols_lst.findItems(other_col, Qt.MatchCaseSensitive)
@@ -157,12 +157,12 @@ class TopicsAnalyser_UI(QWizard):
             self.ui.other_col_txt.setText('')
     
     
-    def remove_other_col_for_import(self):
+    def remove_other_col_for_import(self) -> None:
         if (self.ui.other_cols_lst.currentRow() != -1):
             self.ui.other_cols_lst.takeItem(self.ui.other_cols_lst.currentRow())
             
         
-    def uncaught_exceptions_hander(self, type, value, traceback):
+    def uncaught_exceptions_hander(self, type, value, traceback) -> None:
         # log error in file with details information
         addl_info = f"Data file: {ntpath.basename(self.ui.data_file_txt.text())}\n" \
             f"File size: {self.data_reader.filesize/(1000*1000):.2f} MB\n" \
@@ -181,11 +181,11 @@ class TopicsAnalyser_UI(QWizard):
         self.show_message(disp_msg)
         
         
-    def dataloading_thread_finished(self):
+    def dataloading_thread_finished(self) -> None:
         self.dataloading_progress.close()
     
     
-    def analyser_thread_finished(self, msg: str):
+    def analyser_thread_finished(self, msg: str) -> None:
         self.analysis_progress.close()
         messages = ['Topics analysis is done.\n', msg]    
         self.show_message(messages, icon=QMessageBox.Information)

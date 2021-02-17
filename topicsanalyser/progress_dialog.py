@@ -7,10 +7,10 @@ class ProgressDialog:
         self.progress.setGeometry(QRect(0,0,300,200))
         self.progress.setWindowModality(Qt.WindowModal)
 
-    def show(self):
+    def show(self) -> None:
         self.progress.setValue(1)
         self.progress.show()
         
-    def close(self):
+    def close(self) -> None:
         self.progress.close()
         
