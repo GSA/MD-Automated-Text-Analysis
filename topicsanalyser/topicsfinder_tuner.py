@@ -8,7 +8,7 @@ import os
 
 class TopicsFinderTuner:
     
-    def __init__(self, data: pd.DataFrame, studyname: str= 'topics_modeling', max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= []):
+    def __init__(self, data: pd.DataFrame, studyname: str= None, max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= []):
         self.data = data
         self.max_num_topics = max_num_topics
         self.num_ngrams = num_ngrams
@@ -78,7 +78,7 @@ class TopicsFinderTuner:
         """
         logger = optuna.logging.get_logger("optuna")
         formatter = logging.Formatter('[%(asctime)s] %(message)s')
-        handler = logging.handlers.RotatingFileHandler("optuna.log",maxBytes=10000000,backupCount=3)
+        handler = logging.handlers.RotatingFileHandler("optuna.log",maxBytes=5000000,backupCount=3)
         handler.setFormatter(formatter)        
         logger.addHandler(handler)
        

@@ -4,7 +4,7 @@ from topicsfinder_tuner import TopicsFinderTuner
 
 class TopicsAnalyser:
     
-    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', studyname: str = 'topics_modeling'): 
+    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', studyname: str = None): 
         self.data = data
         self.output_filename = output_filename
         self.studyname = studyname
@@ -33,7 +33,7 @@ class TopicsAnalyser:
             # get the data of current group
             group_data = data[data[col_name] == group]
             # create a new Optuna study name for the current group
-            new_studyname = f'{studyname}->{group}'
+            new_studyname = f'{studyname} -> {group}'
             # recursively call this function to process the data of next level grouping
             topic_dict[group] = self._get_topics_by_group(group_data, new_studyname, num_topics, groupby_cols[1:], num_ngrams, addl_stop_words)
             

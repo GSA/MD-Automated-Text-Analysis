@@ -12,7 +12,8 @@ class TopicsAnalyser_Thread(QThread):
                  groupby_cols: list,
                  num_ngrams: int,
                  addl_stopwords: list,
-                 studyname: str = 'topics_modeling'):        
+                 studyname: str = None
+                 ):        
         QThread.__init__(self)
         self.data = data
         self.output_filename = output_filename
