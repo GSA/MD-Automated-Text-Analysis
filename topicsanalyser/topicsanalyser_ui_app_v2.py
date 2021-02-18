@@ -71,8 +71,10 @@ class TopicsAnalyser_UI(QWizard):
         get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
         addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
         groupby_cols = self.get_groupby_cols()       
-        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols)   
-        # use the input file name as the study name
+        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols) 
+        # log the analysis  
+        self.logger.info(f'Topics Model Fitting:\n{self.get_analysis_inputs_summary()}')
+        # use the input file name as the Optuna study name
         studyname = re.sub(r'[.]\w+','', ntpath.basename(self.ui.data_file_txt.text()))  
         # create a worker thread for the TopicsAnalyser 
         thread = TopicsAnalyser_Thread(data, self.ui.output_file_name_txt.text(),self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords, studyname)
@@ -165,14 +167,7 @@ class TopicsAnalyser_UI(QWizard):
             
         
     def uncaught_exceptions_hander(self, type, value, traceback) -> None:
-        # log error in file with details information
-        addl_info = f"Data file: {ntpath.basename(self.ui.data_file_txt.text())}\n" \
-            f"File size: {self.data_reader.filesize/(1000*1000):.2f} MB\n" \
-            f"No of topics: {self.ui.num_topics_spb.value()}\n" \
-            f"No of N-grams: {self.ui.num_ngrams_spb.value()}\n" \
-            f"Text column: '{self.ui.text_col_name_txt.text()}'\n" \
-            f"Grouping columns: {','.join(self.get_groupby_cols())}"
-        log_msg = system_hook_format(type, value, traceback, addl_info)
+        log_msg = system_hook_format(type, value, traceback, self.get_analysis_inputs_summary())
         self.logger.exception(log_msg)
         
         # show a simplified error message to user
@@ -182,6 +177,23 @@ class TopicsAnalyser_UI(QWizard):
                 "The error has been logged for debugging."
         self.show_message(disp_msg)
         
+        
+    def get_analysis_inputs_summary(self):
+        na = 'N/A'
+        datafile = na if self.ui.data_file_txt.text() is None else ntpath.basename(self.ui.data_file_txt.text()) 
+        filesize = na if self.data_reader.filesize is None else f'{self.data_reader.filesize/(1000*1000):.2f} MB'
+        max_nums_topics = self.ui.num_topics_spb.value()
+        nums_ngrams = self.ui.num_ngrams_spb.value()
+        txt_col = self.ui.text_col_name_txt.text()
+        grp_cols = na if len(self.get_groupby_cols()) == 0 else ','.join(self.get_groupby_cols())
+        
+        return f"Data file: {datafile}\n" \
+            f"File size: {filesize}\n" \
+            f"Max. # of topics: {max_nums_topics}\n" \
+            f"# of N-grams: {nums_ngrams}\n" \
+            f"Text column: '{txt_col}'\n" \
+            f"Grouping columns: {grp_cols}"
+
         
     def dataloading_thread_finished(self) -> None:
         self.dataloading_progress.close()

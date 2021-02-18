@@ -17,7 +17,7 @@ def system_hook_format(type, value, tb, optional_info: str= '') -> str:
     # I'm going to join them into a single string, separating each with a new line
     traceback_details = '\n'.join(traceback.extract_tb(tb).format())
 
-    error_msg = "Uncaught exception -\n" \
+    error_msg = "Uncaught exception:\n" \
                 f"{optional_info}\n" \
                 f"Type: {type}\n" \
                 f"Value: {value}\n" \
