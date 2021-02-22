@@ -8,12 +8,13 @@ import os
 
 class TopicsFinderTuner:
     
-    def __init__(self, data: pd.DataFrame, studyname: str= None, max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= []):
+    def __init__(self, data: pd.DataFrame, studyname: str= None, max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= [], progress_signal = None):
         self.data = data
         self.max_num_topics = max_num_topics
         self.num_ngrams = num_ngrams
         self.addl_stop_words = addl_stop_words
         self.studyname = studyname
+        self.progress_signal = progress_signal
         
         
     def objective(self, trial: optuna.Trial) -> float:
@@ -38,6 +39,9 @@ class TopicsFinderTuner:
             eta = b
         )
         score = cv.get_coherence()
+        # emit progress signal to the slot function
+        if (self.progress_signal is not None):
+            self.progress_signal.emit(f'Trial {trial.number}, Score: {score}')
         # report an objective function value for a given step. The reported values are used by the pruners to determine whether this trial should be pruned. 
         trial.report(score, 0)
         # handle pruning based on the intermediate value.

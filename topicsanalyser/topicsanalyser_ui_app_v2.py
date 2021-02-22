@@ -3,12 +3,12 @@ import pandas as pd
 from mylogging import MyLogging
 import ntpath, re
 from textfilereader import TextFileReader
-from data_loading_thread import DataLoading_Thread
-from topicsanalyser_thread import TopicsAnalyser_Thread
+from topicsanalyser import TopicsAnalyser
 from progress_dialog import ProgressDialog
 from topics_modeling_wizard import Ui_TopicsModelingWizard
 from utils.exception_formats import system_hook_format
-from PyQt5.QtCore import QRegExp, Qt, QRect
+from worker import Worker
+from PyQt5.QtCore import QRegExp, Qt, QRect, QThreadPool
 from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import (
     QWizard,
@@ -60,7 +60,10 @@ class TopicsAnalyser_UI(QWizard):
         # set up logger
         self.logger = MyLogging('topicsAnalyserLogger', 'topicsanalyser.log').logger
         # set up the uncaught exceptions handler
-        sys.excepthook = self.uncaught_exceptions_hander
+        sys.excepthook = self.uncaught_exception_handler
+        
+        # instantiate the thread pool
+        self.threadpool = QThreadPool()
                 
                 
     def run_topics_analyser(self) -> None: 
@@ -69,17 +72,24 @@ class TopicsAnalyser_UI(QWizard):
             return
             
         get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
-        addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
-        groupby_cols = self.get_groupby_cols()       
-        data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), groupby_cols) 
-        # log the analysis  
-        self.logger.info(f'Topics Model Fitting:\n{self.get_analysis_inputs_summary()}')
+        self.addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
+        self.groupby_cols = self.get_groupby_cols()       
+        self.data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), self.groupby_cols) 
+        self.output_filename=self.ui.output_file_name_txt.text()
+        self.num_ngrams=self.ui.num_ngrams_spb.value()
+        self.num_topics=self.ui.num_topics_spb.value()
         # use the input file name as the Optuna study name
-        studyname = re.sub(r'[.]\w+','', ntpath.basename(self.ui.data_file_txt.text()))  
+        self.studyname = re.sub(r'[.]\w+','', ntpath.basename(self.ui.data_file_txt.text()))  
+        # log the analysis  
+        self.logger.info(f'Start Topics Analysis:\n{self.get_analysis_inputs_summary()}')
         # create a worker thread for the TopicsAnalyser 
-        thread = TopicsAnalyser_Thread(data, self.ui.output_file_name_txt.text(),self.ui.num_topics_spb.value(), groupby_cols, self.ui.num_ngrams_spb.value(), addl_stopwords, studyname)
-        thread.finished.connect(self.analyser_thread_finished)
-        thread.start()
+        worker = Worker(self.execute_analysis)
+        # connect the signals to the slots (callback functions)
+        worker.signals.progress.connect(self.on_analysis_progress)
+        worker.signals.result.connect(self.on_analysis_success)
+        worker.signals.error.connect(self.on_thread_error)
+        # Execute the worker thread
+        self.threadpool.start(worker)
         # show a progress dialog while the TopicsAnalyser is running
         self.analysis_progress = ProgressDialog('Analysis is running, please wait...', self)
         self.analysis_progress.show()
@@ -95,11 +105,13 @@ class TopicsAnalyser_UI(QWizard):
         filename, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Excel files (*.xlsx)", options=options) 
         if (filename):
             self.ui.data_file_txt.setText(filename)
-            # load data
-            self.data_reader.data_file_path = filename
-            thread = DataLoading_Thread(self.data_reader)
-            thread.finished.connect(self.dataloading_thread_finished)
-            thread.start()
+            # create a worker thread for data loading 
+            worker = Worker(self.execute_dataloading, filename)
+            # connect the signals to the slots (callback functions)
+            worker.signals.finished.connect(self.on_dataloading_success)
+            worker.signals.error.connect(self.on_thread_error)
+            # Execute the worker thread
+            self.threadpool.start(worker)
             self.dataloading_progress = ProgressDialog('Loading data, please wait...', self)
             self.dataloading_progress.show()
             
@@ -166,7 +178,7 @@ class TopicsAnalyser_UI(QWizard):
             self.ui.other_cols_lst.takeItem(self.ui.other_cols_lst.currentRow())
             
         
-    def uncaught_exceptions_hander(self, type, value, traceback) -> None:
+    def uncaught_exception_handler(self, type, value, traceback) -> None:
         log_msg = system_hook_format(type, value, traceback, self.get_analysis_inputs_summary())
         self.logger.exception(log_msg)
         
@@ -177,7 +189,13 @@ class TopicsAnalyser_UI(QWizard):
                 "The error has been logged for debugging."
         self.show_message(disp_msg)
         
-        
+        # close all progress dialogs if open
+        if self.dataloading_progress is not None:
+            self.dataloading_progress.close()
+        if self.analysis_progress is not None:
+            self.analysis_progress.close()
+
+
     def get_analysis_inputs_summary(self):
         na = 'N/A'
         datafile = na if self.ui.data_file_txt.text() is None else ntpath.basename(self.ui.data_file_txt.text()) 
@@ -194,17 +212,37 @@ class TopicsAnalyser_UI(QWizard):
             f"Text column: '{txt_col}'\n" \
             f"Grouping columns: {grp_cols}"
 
-        
-    def dataloading_thread_finished(self) -> None:
+    
+    def execute_dataloading(self, filename, **kwargs) -> None:
+        self.data_reader.data_file_path = filename
+        self.data_reader.read_data()
+
+            
+    def on_dataloading_success(self) -> None:
         self.dataloading_progress.close()
     
     
-    def analyser_thread_finished(self, msg: str) -> None:
+    def execute_analysis(self, progress_signal) -> str:
+        analyser = TopicsAnalyser(self.data, self.output_filename, self.studyname, tuning_progress_signal=progress_signal)
+        mod_msg = analyser.get_topics(self.num_topics, self.groupby_cols, self.num_ngrams, self.addl_stopwords)
+        return mod_msg
+
+
+    def on_analysis_progress(self, status: object) -> None:
+        # TODO: show the progress info on the Progress Dialog
+        pass
+
+
+    def on_analysis_success(self, msg: str) -> None:
         self.analysis_progress.close()
         messages = ['Topics analysis is done.\n', msg]    
         self.show_message(messages, icon=QMessageBox.Information)
-
-
+        
+        
+    def on_thread_error(self, error_info : tuple) -> None:
+        self.uncaught_exception_handler(*error_info)
+        
+        
 app = QApplication(sys.argv)
 window = TopicsAnalyser_UI()
 window.show()

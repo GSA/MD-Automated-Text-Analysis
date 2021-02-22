@@ -4,16 +4,17 @@ from topicsfinder_tuner import TopicsFinderTuner
 
 class TopicsAnalyser:
     
-    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', studyname: str = None): 
+    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', studyname: str = None, tuning_progress_signal = None): 
         self.data = data
         self.output_filename = output_filename
         self.studyname = studyname
+        self.tuning_progress_signal = tuning_progress_signal
         
                       
     def _get_topics_by_group(self, data: pd.DataFrame, studyname: str, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list) -> dict:
         # check if there is grouping specified for this dataset
         if (len(groupby_cols) == 0):
-            tuner = TopicsFinderTuner(data, studyname, num_topics, num_ngrams, addl_stop_words)
+            tuner = TopicsFinderTuner(data, studyname, num_topics, num_ngrams, addl_stop_words, self.tuning_progress_signal)
             try:
                 best_trial = tuner.tune()
             except ValueError:
