@@ -4,17 +4,17 @@ from topicsfinder_tuner import TopicsFinderTuner
 
 class TopicsAnalyser:
     
-    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', studyname: str = None, tuning_progress_signal = None): 
+    def __init__(self, data: pd.DataFrame, output_filename: str = 'Topics', **kwargs): 
         self.data = data
         self.output_filename = output_filename
-        self.studyname = studyname
-        self.tuning_progress_signal = tuning_progress_signal
+        # optional parameters, such as the ones for model tuning
+        self.kwargs = kwargs 
         
                       
-    def _get_topics_by_group(self, data: pd.DataFrame, studyname: str, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list) -> dict:
+    def _get_topics_by_group(self, data: pd.DataFrame, num_topics: int, groupby_cols: list, num_ngrams: int, addl_stop_words: list, **kwargs) -> dict:
         # check if there is grouping specified for this dataset
         if (len(groupby_cols) == 0):
-            tuner = TopicsFinderTuner(data, studyname, num_topics, num_ngrams, addl_stop_words, self.tuning_progress_signal)
+            tuner = TopicsFinderTuner(data, num_topics, num_ngrams, addl_stop_words, **kwargs)
             try:
                 best_trial = tuner.tune()
             except ValueError:
@@ -25,18 +25,19 @@ class TopicsAnalyser:
             # return the topics for the group
             return best_trial['model'].show_topics(num_topics = best_num_topics)
 
-        # handle the lower level of grouping
+        # get the first column name from the groupby columns, e.g. "AGENCY" from ["AGENCY","COMPONENT",...]
         col_name = groupby_cols[0]
-        # get all the group names of next level
+        # get all the unique groups from the column 
         col_unique_values = data[col_name].unique()
         topic_dict = {}
+        studyname = kwargs['studyname']
         for group in col_unique_values:
             # get the data of current group
             group_data = data[data[col_name] == group]
             # create a new Optuna study name for the current group
-            new_studyname = f'{studyname} -> {group}'
-            # recursively call this function to process the data of next level grouping
-            topic_dict[group] = self._get_topics_by_group(group_data, new_studyname, num_topics, groupby_cols[1:], num_ngrams, addl_stop_words)
+            kwargs['studyname'] = f"{studyname} -> {group}"
+            # recursively call this function to process the data of next level grouping (note: groupby_cols[1:] = ["COMPONENT",...] here as an example)
+            topic_dict[group] = self._get_topics_by_group(group_data, num_topics, groupby_cols[1:], num_ngrams, addl_stop_words, **kwargs)
             
         return topic_dict
     
@@ -57,7 +58,7 @@ class TopicsAnalyser:
 
     def get_topics(self, num_topics: int, groupby_cols: list = [], num_ngrams: int= 2, addl_stop_words = []) -> str:
         TopicsFinderTuner.configure_logger()
-        topics = self._get_topics_by_group(self.data, self.studyname, num_topics, groupby_cols, num_ngrams, addl_stop_words)                   
+        topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words, **self.kwargs)                   
         df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
         col_list = ['Topics'] + groupby_cols + [f"Topic {i}" for i in range(num_topics)]
         df = df.reindex(columns = col_list)

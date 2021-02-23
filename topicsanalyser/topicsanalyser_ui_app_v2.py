@@ -63,8 +63,10 @@ class TopicsAnalyser_UI(QWizard):
         sys.excepthook = self.uncaught_exception_handler
         
         # instantiate the thread pool
-        self.threadpool = QThreadPool()
-                
+        self.threadpool = QThreadPool() 
+        # set the maximum number of tuning trials     
+        self.n_trials = 100
+           
                 
     def run_topics_analyser(self) -> None: 
         if (len(self.ui.output_file_name_txt.text().strip()) == 0):
@@ -91,7 +93,8 @@ class TopicsAnalyser_UI(QWizard):
         # Execute the worker thread
         self.threadpool.start(worker)
         # show a progress dialog while the TopicsAnalyser is running
-        self.analysis_progress = ProgressDialog('Analysis is running, please wait...', self)
+        self.analysis_progress = ProgressDialog('Analysis is running, please wait...', self).progress
+        self.analysis_progress.setValue(1)
         self.analysis_progress.show()
         
         
@@ -112,7 +115,8 @@ class TopicsAnalyser_UI(QWizard):
             worker.signals.error.connect(self.on_thread_error)
             # Execute the worker thread
             self.threadpool.start(worker)
-            self.dataloading_progress = ProgressDialog('Loading data, please wait...', self)
+            self.dataloading_progress = ProgressDialog('Loading data, please wait...', self).progress
+            self.dataloading_progress.setValue(1)
             self.dataloading_progress.show()
             
             
@@ -223,14 +227,15 @@ class TopicsAnalyser_UI(QWizard):
     
     
     def execute_analysis(self, progress_signal) -> str:
-        analyser = TopicsAnalyser(self.data, self.output_filename, self.studyname, tuning_progress_signal = progress_signal)
+        analyser = TopicsAnalyser(self.data, self.output_filename, studyname=self.studyname, n_trials=self.n_trials, progress_signal=progress_signal)
         mod_msg = analyser.get_topics(self.num_topics, self.groupby_cols, self.num_ngrams, self.addl_stopwords)
         return mod_msg
 
 
     def on_analysis_progress(self, status: object) -> None:
-        # TODO: show the progress info on the Progress Dialog
-        pass
+        # update the status on the progress dialog
+        msg = f"Tuning for:\n{status['study']}\nTrial #: {status['num_trial']}\n"
+        self.analysis_progress.setLabelText(msg)
 
 
     def on_analysis_success(self, msg: str) -> None:

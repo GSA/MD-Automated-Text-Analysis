@@ -1,19 +1,21 @@
 import logging, re, ntpath
-from topicsfinder import TopicsFinder
 import optuna
 import numpy as np
 import pandas as pd
 import pickle
 import os
+from PyQt5.QtCore import pyqtSignal
+from topicsfinder import TopicsFinder
 
 class TopicsFinderTuner:
     
-    def __init__(self, data: pd.DataFrame, studyname: str= None, max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= [], progress_signal = None):
+    def __init__(self, data: pd.DataFrame, max_num_topics: int= 10, num_ngrams: int= 2, addl_stop_words: [str]= [], studyname: str= None, n_trials: int= 100, progress_signal: pyqtSignal= None):
         self.data = data
         self.max_num_topics = max_num_topics
         self.num_ngrams = num_ngrams
         self.addl_stop_words = addl_stop_words
         self.studyname = studyname
+        self.n_trials = n_trials
         self.progress_signal = progress_signal
         
         
@@ -39,15 +41,17 @@ class TopicsFinderTuner:
             eta = b
         )
         score = cv.get_coherence()
-        # emit progress signal to the slot function
+        # emit progress signal to the slot functions
         if (self.progress_signal is not None):
-            self.progress_signal.emit(f'Trial {trial.number}, Score: {score}')
+            self.progress_signal.emit({'study':self.studyname,'num_trial':trial.number})
+
         # report an objective function value for a given step. The reported values are used by the pruners to determine whether this trial should be pruned. 
         trial.report(score, 0)
         # handle pruning based on the intermediate value.
         if trial.should_prune():
             raise optuna.exceptions.TrialPruned()
 
+            
         # save a trial info object to a file.
         trial_info = {'trial': trial, 'model': model}
         with open(f'{trial.number}.pickle', 'wb') as fout:
@@ -63,7 +67,7 @@ class TopicsFinderTuner:
 
         # create a study object and optimize the objective function.
         study = optuna.create_study(direction='maximize', study_name= self.studyname)
-        study.optimize(self.objective, n_trials=100, callbacks=[study_stop_cb])
+        study.optimize(self.objective, n_trials=self.n_trials, callbacks=[study_stop_cb])
         
         # Load the best trial info object from file.
         with open(f'{study.best_trial.number}.pickle', 'rb') as fin:
