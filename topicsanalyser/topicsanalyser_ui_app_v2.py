@@ -212,8 +212,8 @@ class TopicsAnalyser_UI(QWizard):
             f"Text column: '{txt_col}'\n" \
             f"Grouping columns: {grp_cols}"
 
-    
-    def execute_dataloading(self, filename, **kwargs) -> None:
+    # progess_signal is expected to pass to the worker function even though it may not be used
+    def execute_dataloading(self, filename, progress_signal) -> None:
         self.data_reader.data_file_path = filename
         self.data_reader.read_data()
 
@@ -223,7 +223,7 @@ class TopicsAnalyser_UI(QWizard):
     
     
     def execute_analysis(self, progress_signal) -> str:
-        analyser = TopicsAnalyser(self.data, self.output_filename, self.studyname, tuning_progress_signal=progress_signal)
+        analyser = TopicsAnalyser(self.data, self.output_filename, self.studyname, tuning_progress_signal = progress_signal)
         mod_msg = analyser.get_topics(self.num_topics, self.groupby_cols, self.num_ngrams, self.addl_stopwords)
         return mod_msg
 
