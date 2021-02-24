@@ -1,5 +1,4 @@
 import sys
-import pandas as pd
 from mylogging import MyLogging
 import ntpath, re
 from textfilereader import TextFileReader
@@ -8,14 +7,11 @@ from progress_dialog import ProgressDialog
 from topics_modeling_wizard import Ui_TopicsModelingWizard
 from utils.exception_formats import system_hook_format
 from worker import Worker
-from PyQt5.QtCore import QRegExp, Qt, QRect, QThreadPool
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtCore import Qt, QThreadPool
 from PyQt5.QtWidgets import (
     QWizard,
-    QWizardPage,
     QApplication, 
     QFileDialog, 
-    QErrorMessage,
     QMessageBox,
     QStyle
 )
@@ -25,7 +21,7 @@ class TopicsAnalyser_UI(QWizard):
         super(TopicsAnalyser_UI, self).__init__(parent)
         self.ui = Ui_TopicsModelingWizard()
         self.ui.setupUi(self)
-        self.msg = QMessageBox()
+        self.msg = QMessageBox(parent=self)
         
         # change the icon of the push buttons
         self.ui.add_col_btn.setIcon(self.style().standardIcon(getattr(QStyle, 'SP_ArrowForward')))

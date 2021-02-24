@@ -5,7 +5,6 @@ import re
 from nltk.corpus import stopwords
 
 # Gensim
-import gensim
 import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 from gensim.models import LdaModel, CoherenceModel
