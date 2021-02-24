@@ -45,7 +45,7 @@ class TopicsAnalyser_UI(QWizard):
         self.ui.DataFilePage.registerField('text_col_name_txt*', self.ui.text_col_name_txt)
         
         # override some default page functions
-        self.ui.DataFilePage.validatePage = self.validate_data_file_page
+        self.ui.DataFilePage.validatePage = self._validate_data_file_page
         self.ui.TopicsModelingPage.initializePage = self.init_modeling_page
         
         # link the signals to the slots
@@ -70,12 +70,12 @@ class TopicsAnalyser_UI(QWizard):
                 
     def run_topics_analyser(self) -> None: 
         if (len(self.ui.output_file_name_txt.text().strip()) == 0):
-            self.show_message(['Please enter the output file name.'], icon=QMessageBox.Warning)
+            self._show_message(['Please enter the output file name.'], icon=QMessageBox.Warning)
             return
             
         get_wordlist = lambda text: [word.strip() for word in text.split(',')] if (len(text) > 0) else []        
         self.addl_stopwords = get_wordlist(self.ui.addl_stopwords_txt.text())       
-        self.groupby_cols = self.get_groupby_cols()       
+        self.groupby_cols = self._get_groupby_cols()       
         self.data = self.data_reader.get_dataframe(self.ui.text_col_name_txt.text(), self.groupby_cols) 
         self.output_filename=self.ui.output_file_name_txt.text()
         self.num_ngrams=self.ui.num_ngrams_spb.value()
@@ -83,7 +83,7 @@ class TopicsAnalyser_UI(QWizard):
         # use the input file name as the Optuna study name
         self.studyname = re.sub(r'[.]\w+','', ntpath.basename(self.ui.data_file_txt.text()))  
         # log the analysis  
-        self.logger.info(f'Start Topics Analysis:\n{self.get_analysis_inputs_summary()}')
+        self.logger.info(f'Start Topics Analysis:\n{self._get_analysis_inputs_summary()}')
         # create a worker thread for the TopicsAnalyser 
         worker = Worker(self.execute_analysis)
         # connect the signals to the slots (callback functions)
@@ -98,7 +98,7 @@ class TopicsAnalyser_UI(QWizard):
         self.analysis_progress.show()
         
         
-    def get_groupby_cols(self) -> list:
+    def _get_groupby_cols(self) -> list:
         return [ self.ui.groupby_cols_lst.item(i).text() for i in range(self.ui.groupby_cols_lst.count()) if self.ui.groupby_cols_lst.item(i).checkState() == Qt.Checked]
     
         
@@ -120,7 +120,7 @@ class TopicsAnalyser_UI(QWizard):
             self.dataloading_progress.show()
             
             
-    def validate_data_file_page(self) -> bool:
+    def _validate_data_file_page(self) -> bool:
         isvalid = True
         errors = []
         text_col = self.ui.text_col_name_txt.text()
@@ -135,24 +135,24 @@ class TopicsAnalyser_UI(QWizard):
             isvalid = False
         
         if (len(errors) > 0):
-            self.show_message(errors)
+            self._show_message(errors)
             
         return isvalid
     
     
     def init_modeling_page(self) -> None:
         # copy the other column names for grouping use
-        self.copy_other_col_names()
+        self._copy_other_col_names()
                    
         
-    def show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Critical) -> None:
+    def _show_message(self, msgs: list, buttons_shown: int= QMessageBox.Ok, icon: int= QMessageBox.Critical) -> None:
         self.msg.setIcon(icon)
         self.msg.setText(('').join(msgs))
         self.msg.setStandardButtons(buttons_shown)
         self.msg.exec()
         
         
-    def copy_other_col_names(self) -> None:
+    def _copy_other_col_names(self) -> None:
         self.ui.groupby_cols_lst.clear()
         for i in range(self.ui.other_cols_lst.count()):
             item = self.ui.other_cols_lst.item(i).clone()
@@ -166,11 +166,11 @@ class TopicsAnalyser_UI(QWizard):
         if (other_col != ''):
             cols_existed = self.ui.other_cols_lst.findItems(other_col, Qt.MatchCaseSensitive)
             if (len(cols_existed) > 0):
-                self.show_message([f'Column "{other_col}" was already added.'], icon=QMessageBox.Warning)
+                self._show_message([f'Column "{other_col}" was already added.'], icon=QMessageBox.Warning)
                 return
             other_cols_limit = 5
             if (self.ui.other_cols_lst.count() == other_cols_limit):
-                self.show_message([f'Only up to {other_cols_limit} other columns are allowed.'], icon=QMessageBox.Warning)
+                self._show_message([f'Only up to {other_cols_limit} other columns are allowed.'], icon=QMessageBox.Warning)
                 return
                 
             self.ui.other_cols_lst.addItem(other_col)
@@ -183,7 +183,7 @@ class TopicsAnalyser_UI(QWizard):
             
         
     def uncaught_exception_handler(self, type, value, traceback) -> None:
-        log_msg = system_hook_format(type, value, traceback, self.get_analysis_inputs_summary())
+        log_msg = system_hook_format(type, value, traceback, self._get_analysis_inputs_summary())
         self.logger.exception(log_msg)
         
         # show a simplified error message to user
@@ -191,7 +191,7 @@ class TopicsAnalyser_UI(QWizard):
                 f"Type: {type}\n" \
                 f"Value: {value}\n\n" \
                 "The error has been logged for debugging."
-        self.show_message(disp_msg)
+        self._show_message(disp_msg)
         
         # close all progress dialogs if open
         if self.dataloading_progress is not None:
@@ -200,14 +200,14 @@ class TopicsAnalyser_UI(QWizard):
             self.analysis_progress.close()
 
 
-    def get_analysis_inputs_summary(self):
+    def _get_analysis_inputs_summary(self):
         na = 'N/A'
         datafile = na if self.ui.data_file_txt.text() is None else ntpath.basename(self.ui.data_file_txt.text()) 
         filesize = na if self.data_reader.filesize is None else f'{self.data_reader.filesize/(1000*1000):.2f} MB'
         max_nums_topics = self.ui.num_topics_spb.value()
         nums_ngrams = self.ui.num_ngrams_spb.value()
         txt_col = self.ui.text_col_name_txt.text()
-        grp_cols = na if len(self.get_groupby_cols()) == 0 else ','.join(self.get_groupby_cols())
+        grp_cols = na if len(self._get_groupby_cols()) == 0 else ','.join(self._get_groupby_cols())
         
         return f"Data file: {datafile}\n" \
             f"File size: {filesize}\n" \
@@ -241,7 +241,7 @@ class TopicsAnalyser_UI(QWizard):
     def on_analysis_success(self, msg: str) -> None:
         self.analysis_progress.close()
         messages = ['Topics analysis is done.\n', msg]    
-        self.show_message(messages, icon=QMessageBox.Information)
+        self._show_message(messages, icon=QMessageBox.Information)
         
         
     def on_thread_error(self, error_info : tuple) -> None:
