@@ -55,11 +55,13 @@ class TopicsFinder:
     
        
     def fit_model(self, **kwargs) -> (LdaModel, CoherenceModel):
+        if ((len(self.corpus)==0) or (len(self.id2word)==0) or (len(self.data_lemmatized)==0)):
+            raise ValueError('No data for model fitting.')
         model = LdaModel(corpus= self.corpus, id2word= self.id2word, **kwargs)
         # processes must be set to 1 or multiple copies of the UI application will be created
         coherencemodel = CoherenceModel(model= model, texts= self.data_lemmatized, dictionary= self.id2word, coherence='c_v', processes=1)
         
-        return model, coherencemodel    
+        return (model, coherencemodel)  
 
     
     

@@ -153,7 +153,7 @@ class TopicsAnalyser_UI(QWizard):
         for i in range(self.ui.other_cols_lst.count()):
             item = self.ui.other_cols_lst.item(i).clone()
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.Checked)
             self.ui.groupby_cols_lst.addItem(item)
         
     

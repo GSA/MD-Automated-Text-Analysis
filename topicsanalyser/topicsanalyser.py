@@ -18,7 +18,8 @@ class TopicsAnalyser:
             try:
                 best_trial = tuner.tune()
             except ValueError:
-                return 'no data'
+                # return a dummy topic, [(topic_num, topic_content)] for this group
+                return [(0,'no data')]
 
             # get the no. of topics from the best parameters
             best_num_topics = best_trial['trial'].params['num_topics']
@@ -58,7 +59,7 @@ class TopicsAnalyser:
 
     def get_topics(self, num_topics: int, groupby_cols: list = [], num_ngrams: int= 2, addl_stop_words = []) -> str:
         TopicsFinderTuner.configure_logger()
-        topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words, **self.kwargs)                   
+        topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words, **self.kwargs)
         df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
         col_list = ['Topics'] + groupby_cols + [f"Topic {i}" for i in range(num_topics)]
         df = df.reindex(columns = col_list)

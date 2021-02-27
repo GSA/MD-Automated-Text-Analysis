@@ -49,7 +49,7 @@ class TopicsFinderTuner:
         trial.report(score, 0)
         # handle pruning based on the intermediate value.
         if trial.should_prune():
-            raise optuna.exceptions.TrialPruned()
+            raise optuna.TrialPruned()
 
             
         # save a trial info object to a file.
