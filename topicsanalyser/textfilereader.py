@@ -34,7 +34,7 @@ class TextFileReader:
         df = self.data[cols]
         # rename the original text column in dataframe to 'TEXT'
         df.columns = other_columns + ['TEXT']
-        df.dropna(subset=['TEXT'],inplace=True)
+        df = df.dropna(subset=['TEXT']).copy()
         return df
    
     def verify_columns_exist(self, columns: list ) -> list:
@@ -44,7 +44,7 @@ class TextFileReader:
         cols_not_exist = []
         for col in columns:
             if col not in self.data.columns:
-                cols_not_exist.append(col + ', ')
+                cols_not_exist.append(col)
                 
         return cols_not_exist
     

@@ -123,7 +123,7 @@ class TopicsAnalyser_UI(QWizard):
         cols = [text_col] + [self.ui.other_cols_lst.item(i).text() for i in range(self.ui.other_cols_lst.count())]
         cols_not_exist = self.data_reader.verify_columns_exist(cols)
         if (len(cols_not_exist) > 0):
-            errors.extend(['The following column(s) do not exist in the data file: '] + cols_not_exist)
+            errors.extend(['The following column(s) do not exist in the data file: ' + ', '.join(cols_not_exist)])
             isvalid = False
         
         if (self.data_reader.is_text_column(text_col) == False):
