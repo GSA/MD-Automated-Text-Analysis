@@ -54,6 +54,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+*.log.*
 local_settings.py
 db.sqlite3
 
@@ -149,3 +150,7 @@ eda/labeled_fbo_docs/
 eda/models/
 *.xlsx
 *.csv
+
+### Optuna ###
+*-study.db
+*.pickle

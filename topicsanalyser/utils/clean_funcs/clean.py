@@ -8,11 +8,16 @@ import re
 from nltk.corpus import stopwords 
 from nltk.stem.wordnet import WordNetLemmatizer
 import string
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup 
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from time import time
 import warnings
+
+import gensim
+from gensim.utils import simple_preprocess
+# from nltk.corpus import stopwords
+import spacy
 
 warnings.filterwarnings('ignore')
 nltk.download('vader_lexicon')
@@ -20,11 +25,11 @@ nltk.download('wordnet')
 nltk.download('stopwords')
 
 stop = set(stopwords.words('english'))
-exclude = set(string.punctuation) 
+punc = set(string.punctuation) 
+nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
 
 def clean_text(doc):
 
-    
     def strip_html_tags(text):
         soup = BeautifulSoup(text, "html.parser")
         stripped_text = soup.get_text()
@@ -56,7 +61,7 @@ def clean_text(doc):
     normalized_1 = strip_nonsense(email_free)
     
     stop_free = " ".join([i for i in normalized_1.lower().split() if i not in stop])
-    punc_free = ''.join(ch for ch in stop_free if ch not in exclude)
+    punc_free = ''.join(ch for ch in stop_free if ch not in punc)
     normalized = " ".join(WordNetLemmatizer().lemmatize(word) for word in punc_free.split())
     
     return normalized
@@ -100,7 +105,7 @@ def lda_to_list (x):
     return temp_list
 
 def remove_stopwords(texts):
-    return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop] for doc in texts]
 
 def make_bigrams(texts,bigram_mod):
     return [bigram_mod[doc] for doc in texts]
@@ -115,3 +120,10 @@ def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
         doc = nlp(" ".join(sent)) 
         texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
     return texts_out
+
+def sent_to_words(sentences):
+    for sentence in sentences:
+        yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
+
+
+        
