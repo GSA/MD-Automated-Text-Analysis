@@ -23,7 +23,7 @@ class TextFileReader:
         if ((self.data_file_path is None) or (len(self.data_file_path.strip()) == 0)):
             raise ValueError('No data path is specified.')
         
-        self.data = pd.read_excel(self.data_file_path)
+        self.data = pd.read_excel(self.data_file_path, engine='openpyxl')
         self.filesize = os.path.getsize(self.data_file_path)
 
     def get_dataframe(self, text_column: str, other_columns: list = []) -> pd.DataFrame:
