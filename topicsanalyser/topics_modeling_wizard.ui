@@ -264,7 +264,7 @@
        <item>
         <widget class="QLabel" name="extension_lbl">
          <property name="text">
-          <string>.xlsx</string>
+          <string>.csv</string>
          </property>
         </widget>
        </item>

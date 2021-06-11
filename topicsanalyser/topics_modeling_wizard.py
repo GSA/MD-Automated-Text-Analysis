@@ -166,5 +166,5 @@ class Ui_TopicsModelingWizard(object):
         self.addl_stopwords_lbl.setText(_translate("TopicsModelingWizard", "Addl. Stop Words:"))
         self.output_file_name_lbl.setText(_translate("TopicsModelingWizard", "Output File Name *:"))
         self.output_file_name_txt.setText(_translate("TopicsModelingWizard", "Topics"))
-        self.extension_lbl.setText(_translate("TopicsModelingWizard", ".xlsx"))
+        self.extension_lbl.setText(_translate("TopicsModelingWizard", ".csv"))
         self.run_btn.setText(_translate("TopicsModelingWizard", "Run Analysis"))
