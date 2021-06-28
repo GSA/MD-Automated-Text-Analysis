@@ -18,13 +18,13 @@ class TopicsAnalyser:
             try:
                 best_trial = tuner.tune()
             except ValueError:
-                # return a dummy topic, [(topic_num, topic_content)] for this group
-                return [(0,'no data')]
+                # return a dummy topic, [(topic_num, topic_content)] and a score of 'None for this group
+                return [(0,'no data')], None
 
             # get the no. of topics from the best parameters
             best_num_topics = best_trial['trial'].params['num_topics']
-            # return the topics for the group
-            return best_trial['model'].show_topics(num_topics = best_num_topics)
+            # return the topics and its coherence score for the group
+            return best_trial['model'].show_topics(num_topics = best_num_topics), best_trial['score']
 
         # get the first column name from the groupby columns, e.g. "AGENCY" from ["AGENCY","COMPONENT",...]
         col_name = groupby_cols[0]
@@ -43,14 +43,14 @@ class TopicsAnalyser:
         return topic_dict
     
     
-    def _flatten_dictionary(self, topics, row_values: list = []) -> list:
-        if (isinstance(topics, dict) == False):
-            # return a row of the current group
-            return [row_values + [pd.Series(topics)]]
+    def _flatten_dictionary(self, topic_dict, row_values: list = []) -> list:
+        if (isinstance(topic_dict, dict) == False):
+            # return a row of the current group (topics_dict[0] = topics, topics_dict[1] = score)
+            return [row_values + [pd.Series(topic_dict[0])] + [topic_dict[1]]]
 
         results = []
         # return a list of rows for the current group
-        for k, v in topics.items():
+        for k, v in topic_dict.items():
             # further flatten the sub-dictionaries
             results = results + self._flatten_dictionary(v, row_values + [k])
 
@@ -60,14 +60,14 @@ class TopicsAnalyser:
     def get_topics(self, num_topics: int, groupby_cols: list = [], num_ngrams: int= 2, addl_stop_words = []) -> str:
         TopicsFinderTuner.configure_logger()
         topics = self._get_topics_by_group(self.data, num_topics, groupby_cols, num_ngrams, addl_stop_words, **self.kwargs)
-        df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics'])
-        col_list = ['Topics'] + groupby_cols + [f"Topic {i}" for i in range(num_topics)]
+        df = pd.DataFrame(self._flatten_dictionary(topics), columns= groupby_cols + ['Topics','Coherence Score'])        
+        col_list = ['Topics'] + groupby_cols + [f"Topic {i+1}" for i in range(num_topics)] + ['Coherence Score']
         df = df.reindex(columns = col_list)
         
         for i in range(len(df)):
             for t in range(num_topics):
                 try:
-                    df[f"Topic {t}"].iloc[i] = df['Topics'].iloc[i][t][1]
+                    df[f"Topic {t+1}"].iloc[i] = df['Topics'].iloc[i][t][1]
                 except KeyError:
                     pass
 
