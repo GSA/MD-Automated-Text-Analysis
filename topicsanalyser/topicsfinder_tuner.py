@@ -53,7 +53,7 @@ class TopicsFinderTuner:
 
             
         # save a trial info object to a file.
-        trial_info = {'trial': trial, 'model': model}
+        trial_info = {'trial': trial, 'model': model, 'score': score}
         with open(f'{trial.number}.pickle', 'wb') as fout:
             pickle.dump(trial_info, fout)
         

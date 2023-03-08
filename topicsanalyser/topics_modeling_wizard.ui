@@ -192,7 +192,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="num_ngrams_lbl">
        <property name="text">
-        <string># of N-Grams *:</string>
+        <string>N-Gram *:</string>
        </property>
        <property name="buddy">
         <cstring>num_ngrams_spb</cstring>
@@ -208,7 +208,7 @@
         <number>5</number>
        </property>
        <property name="value">
-        <number>2</number>
+        <number>3</number>
        </property>
       </widget>
      </item>
@@ -264,7 +264,7 @@
        <item>
         <widget class="QLabel" name="extension_lbl">
          <property name="text">
-          <string>.xlsx</string>
+          <string>.csv</string>
          </property>
         </widget>
        </item>
